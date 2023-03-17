@@ -16,5 +16,5 @@ pub struct Block {
     pub line_end: i64,
     pub initital_transform: String,
     pub final_transformed: String,
-    pub chilren: Vec<Block>,
+    pub children: Vec<Block>,
 }
