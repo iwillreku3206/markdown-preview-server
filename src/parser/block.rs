@@ -2,7 +2,9 @@ use regex::Regex;
 
 pub struct BlockType {
     pub id: String,
-    pub regex: Regex,
+    pub start: Regex,
+    pub end: Regex,
+    pub content: Regex,
     pub exclude: Vec<Regex>,
     pub template: String,
 }

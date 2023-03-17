@@ -1,5 +1,5 @@
 use crate::parser::block::BlockType;
-
+use regex::Regex;
 /*
  *  From CommonMark Specification 0.29
  *  Under Section 4.1 "Thematic Breaks"
@@ -14,10 +14,10 @@ use crate::parser::block::BlockType;
 pub fn thematic_break() -> BlockType {
     return BlockType {
         id: "thematic_break".to_string(),
-        regex: regex::Regex::new(
-            r"/^ {0,3}((([\-] {0,}){3,}|([_] {0,}){3,}|([\*] {0,}){3,})*)\n/gm",
-        )
-        .unwrap(),
+        start: regex::Regex::new(r"^[ ]{0,3}((([\-] {0,}){3,}|([_] {0,}){3,}|([\*] {0,}){3,})*)")
+            .unwrap(),
+        end: Regex::new(r"$").unwrap(),
+        content: Regex::new(r"").unwrap(),
         exclude: [].to_vec(),
         template: "<hr />".to_string(),
     };

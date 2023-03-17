@@ -9,6 +9,7 @@ fn main() -> Result<(), String> {
 
     //println!("{}", html);
     parse_file(include_str!("../test.md"), Vec::new());
+    println!("m:{}",crate::parser::blocks::spec::thematic_break::thematic_break().start.is_match("---"));
     Ok(())
     //web_start();
 }
