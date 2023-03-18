@@ -1,7 +1,7 @@
 use crate::parser::block::BlockType;
 use regex::Regex;
 /*
- *  From CommonMark Specification 0.29
+ *  From CommonMark Specification 0.30
  *  Under Section 4.1 "Thematic Breaks"
  *
  *  A line consisting of 0-3 spaces of indentation, followed
