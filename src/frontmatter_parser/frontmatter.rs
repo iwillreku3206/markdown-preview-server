@@ -45,3 +45,14 @@ pub fn read_frontmatter(document: Split<&str>) -> HashMap<String, String> {
 
     return frontmatter_map;
 }
+
+pub fn remove_frontmatter(line_arr: Vec<&str>, frontmatter: HashMap<String, String>) -> String {
+    let document_content = &line_arr[frontmatter
+        .get(&"__frontmatter_end_line__".to_string())
+        .unwrap_or(&"0".to_string())
+        .to_string()
+        .parse::<usize>()
+        .unwrap_or_default()..line_arr.len() - 1];
+
+    return document_content.join("\n");
+}
