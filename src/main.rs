@@ -1,5 +1,7 @@
 pub mod frontmatter_parser;
+pub mod hooks;
 pub mod markdown_extensions;
+pub mod util;
 pub mod web;
 
 use crate::frontmatter_parser::parser::parse_file_with_frontmatter;
@@ -7,7 +9,7 @@ use web::web_start;
 
 fn main() -> Result<(), String> {
     //println!("{}", html);
-    let file = parse_file_with_frontmatter(include_str!("../test.md"));
+    let mut file = parse_file_with_frontmatter(include_str!("../test.md"));
     /*println!(
         "m:{}",
         crate::parser::blocks::spec::thematic_break::thematic_break()
@@ -21,10 +23,11 @@ fn main() -> Result<(), String> {
     markdown_it::plugins::extra::syntect::add(parser);
     crate::markdown_extensions::latex::add(parser);
     crate::markdown_extensions::newline::add(parser);
+    file.document_content = crate::hooks::toc::toc(file.document_content);
 
     let ast = parser.parse(&file.document_content);
-
-    println!("{}", ast.render().as_str());
+    let output = ast.render();
+    println!("{}", output);
 
     Ok(())
     //web_start();
