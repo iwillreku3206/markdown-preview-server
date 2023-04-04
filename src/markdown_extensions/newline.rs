@@ -1,4 +1,4 @@
-// Replaces $$ {LaTeX} $$ with HTML.
+// Replaces \n with newline
 
 use markdown_it::parser::inline::{InlineRule, InlineState};
 use markdown_it::{MarkdownIt, Node, NodeValue, Renderer};
@@ -13,6 +13,7 @@ impl NodeValue for InlineNewline {
         // (for example, source mapping information)
 
         fmt.self_close("br", &[]);
+        fmt.cr();
     }
 }
 

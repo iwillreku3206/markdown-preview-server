@@ -8,7 +8,7 @@ use markdown_it::{MarkdownIt, Node, NodeValue, Renderer};
 #[derive(Debug)]
 // This is a structure that represents your custom Node in AST.
 pub struct InlineKaTeX {
-    raw: String,
+    pub marker: char,
 }
 
 // This defines how your custom node should be rendered.
@@ -18,16 +18,25 @@ impl NodeValue for InlineKaTeX {
         // (for example, source mapping information)
         let mut attrs = node.attrs.clone();
 
-        // get raw latex
-        let raw_content = self.raw.trim_matches('$');
-
-        // add a custom class attribute
         attrs.push(("class", "math".into()));
-        attrs.push(("x-latex-data", raw_content.into()));
-
-        eprintln!("{}", self.raw);
 
         fmt.open("span", &attrs);
+
+        let mut raw = "".to_owned();
+
+        let _ = &node.children.iter().for_each(|child| {
+            let raw_content = child.render();
+            raw.push_str(&raw_content);
+        });
+        
+        let result = latex2mathml::latex_to_mathml(&raw, latex2mathml::DisplayStyle::Block)
+            .unwrap_or_default();
+
+        fmt.text_raw(&result);
+
+        eprintln!("zzzz{}", raw);
+        /*
+        eprintln!("{}", self.raw);
 
         let regex_e = regex::Regex::new(r"\$\$(.+)\$\$").unwrap();
         let latex_orig = regex_e
@@ -36,9 +45,10 @@ impl NodeValue for InlineKaTeX {
             .get(1)
             .unwrap()
             .as_str();
+        let test = regex_e.captures(&self.raw).unwrap();
 
-        let result = latex2mathml::latex_to_mathml(latex_orig, latex2mathml::DisplayStyle::Block)
-            .unwrap_or_default();
+        eprintln!("aaaa::{}    cccc::{:?}", &self.raw, test);
+
         let mut latex_from_original = "$$".to_owned();
         latex_from_original.push_str(latex_orig);
         latex_from_original.push_str("$$");
@@ -46,11 +56,12 @@ impl NodeValue for InlineKaTeX {
 
         // render the LaTeX
 
-        fmt.text_raw(&output);
+        fmt.text_raw(&output);*/
         fmt.close("span");
     }
 }
 
+/*
 // This is an extension for the inline subparser.
 struct FerrisInlineScanner;
 
@@ -84,8 +95,12 @@ impl InlineRule for FerrisInlineScanner {
         ))
     }
 }
+*/
 
 pub fn add(md: &mut MarkdownIt) {
     // insert this rule into inline subparser
-    md.inline.add_rule::<FerrisInlineScanner>();
+    // md.inline.add_rule::<FerrisInlineScanner>();
+    markdown_it::generics::inline::emph_pair::add_with::<'$', 2, true>(md, || {
+        Node::new(InlineKaTeX { marker: '$' })
+    });
 }
