@@ -37,7 +37,7 @@ impl InlineRule for NewlineInlineScanner {
     //
     fn run(state: &mut InlineState) -> Option<(Node, usize)> {
         let input = &state.src[state.pos..state.pos_max]; // look for stuff at state.pos
-        eprintln!("o::{}", input);
+//        eprintln!("o::{}", input);
         let test_regex = regex::Regex::new(r"\\n|\\$").unwrap();
         if !test_regex.is_match(input) {
             return None;
