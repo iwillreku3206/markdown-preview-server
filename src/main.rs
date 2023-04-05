@@ -8,6 +8,7 @@ use crate::frontmatter_parser::parser::parse_file_with_frontmatter;
 use web::web_start;
 
 fn main() -> Result<(), String> {
+    env_logger::init();
     //println!("{}", html);
     let mut file = parse_file_with_frontmatter(include_str!("../test.md"));
     /*println!(
@@ -17,7 +18,7 @@ fn main() -> Result<(), String> {
             .is_match("---")
     );*/
     let parser = &mut markdown_it::MarkdownIt::new();
-    
+
     markdown_it::plugins::cmark::inline::newline::add(parser);
     markdown_it::plugins::cmark::inline::escape::add(parser);
     markdown_it::plugins::cmark::inline::backticks::add(parser);
@@ -46,8 +47,8 @@ fn main() -> Result<(), String> {
 
     let ast = parser.parse(&file.document_content);
     let output = ast.render();
-    println!("{}", output);
+    //println!("{}", output);
 
+    web_start();
     Ok(())
-    //web_start();
 }
