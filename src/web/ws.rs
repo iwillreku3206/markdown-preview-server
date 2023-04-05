@@ -6,13 +6,8 @@ use actix::prelude::*;
 use actix::Actor;
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
-use rand::{self, rngs::ThreadRng, Rng};
 use std::{
-    collections::{HashMap, HashSet},
-    sync::{
-        atomic::{AtomicUsize, Ordering},
-        Arc,
-    },
+    collections::{HashMap},
     time::{Duration, Instant},
 };
 

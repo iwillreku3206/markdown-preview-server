@@ -5,7 +5,6 @@ pub mod util;
 pub mod web;
 
 use crate::frontmatter_parser::parser::parse_file_with_frontmatter;
-use web::web_start;
 
 fn main() -> Result<(), String> {
     env_logger::init();
@@ -46,9 +45,9 @@ fn main() -> Result<(), String> {
     file.document_content = crate::hooks::toc::toc(file.document_content);
 
     let ast = parser.parse(&file.document_content);
-    let output = ast.render();
+    let _output = ast.render();
     //println!("{}", output);
 
-    web_start();
+    let _ = crate::web::web_start();
     Ok(())
 }
