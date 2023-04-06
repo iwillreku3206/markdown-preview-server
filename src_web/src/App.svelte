@@ -8,9 +8,18 @@
 </main>
 
 <style>
+  main {
+    background: var(--background);
+    text: var(--text-primary);
+  }
+
   .topbar {
     width: 100%;
     padding: 0.5rem;
-    border-bottom: 0.15rem solid black;
+    border-bottom: 0.1rem solid var(--background-disabled);
+  }
+
+  .content {
+    all: unset;
   }
 </style>
