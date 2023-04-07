@@ -17,18 +17,16 @@ body {
   --success: #0f0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --primary: #000090;
-    --secondary: #111150;
-    --text-primary: white;
-    --text-secondary: #ddd;
-    --text-on-primary: white;
-    --background: #222;
-    --background-secondary: #3070F0;
-    --background-disabled: #444;
-    --error: #f00;
-    --warning: #dd4;
-    --success: #0f0;
-  }  
-}
+.dark {
+  --primary: #000090;
+  --secondary: #111150;
+  --text-primary: white;
+  --text-secondary: #ddd;
+  --text-on-primary: white;
+  --background: #222;
+  --background-secondary: #3070F0;
+  --background-disabled: #444;
+  --error: #f00;
+  --warning: #dd4;
+  --success: #0f0;
+}  

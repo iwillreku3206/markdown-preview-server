@@ -1,25 +1,78 @@
 <script lang="ts">
-  import Counter from "./lib/Counter.svelte";
+  import Content from "./lib/Content.svelte";
+  import {subscribe} from "./ws";
+
+  let dark = true;
+
+  subscribe((data) => {
+    console.log(data);
+  });
+
+  function toggleDarkMode() {
+    dark = !dark;
+  }
 </script>
 
-<main>
-  <div class="topbar">Markdown Preview Server</div>
-  <div class="content" />
+<main class={dark ? "dark" : ""}>
+  <div class="topbar">
+    <p class="topbar-text">Markdown Preview Server</p>
+    <p class="topbar-center">File Name</p>
+    <div class="topbar-right">
+      <button on:click={toggleDarkMode} class="topbar-button">
+        <span class="material-symbols-outlined">
+          {!dark ? "dark_mode" : "light_mode"}
+        </span>
+      </button>
+    </div>
+  </div>
+  <Content />
 </main>
 
 <style>
   main {
     background: var(--background);
-    text: var(--text-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
   }
 
   .topbar {
-    width: 100%;
+    max-width: 100%;
     padding: 0.5rem;
-    border-bottom: 0.1rem solid var(--background-disabled);
+    padding-left: 1rem;
+    padding-right: 1rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    user-select: none;
+    position: sticky;
+    background: var(--background-secondary);
+    color: var(--text-on-primary);
+    top: 0;
+    left: 0;
   }
 
-  .content {
-    all: unset;
+  .topbar-button {
+    color: var(--text-on-primary);
+    background: none;
+    border: none;
+  }
+
+  .topbar-center {
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin: 0;
+    align-self: center;
+  }
+
+  .topbar-right {
+    margin-left: auto;
+    text-align: right;
+  }
+
+  .topbar-text {
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin: 0;
+    align-self: center;
   }
 </style>
