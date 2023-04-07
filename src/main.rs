@@ -4,9 +4,12 @@ pub mod markdown_extensions;
 pub mod util;
 pub mod web;
 
+use tokio::task::futures;
+
 use crate::frontmatter_parser::parser::parse_file_with_frontmatter;
 
-fn main() -> Result<(), String> {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::init();
     //println!("{}", html);
     let mut file = parse_file_with_frontmatter(include_str!("../test.md"));
@@ -47,7 +50,8 @@ fn main() -> Result<(), String> {
     let ast = parser.parse(&file.document_content);
     let _output = ast.render();
     //println!("{}", output);
-
-    let _ = crate::web::web_start();
-    Ok(())
+    loop {
+        tokio::spawn(async move { crate::web::ws::ws_start() });
+        tokio::spawn(async move { crate::web::web_start() });
+    }
 }
