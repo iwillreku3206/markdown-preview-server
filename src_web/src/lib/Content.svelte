@@ -1,5 +1,10 @@
 <script lang="ts">
-  let testHtml = "<style>*{padding: 2rem;}</style><h1>Test</h1><p>Test</p>";
+  import { subscribe } from "../ws";
+
+  let testHtml = "";
+  subscribe((data) => {
+    testHtml = testHtml +  data;
+  });
 </script>
 
 <div class="content-container">

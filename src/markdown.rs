@@ -1,32 +1,8 @@
-pub mod frontmatter_parser;
-pub mod hooks;
-pub mod markdown_extensions;
-pub mod util;
-pub mod web;
-pub mod markdown;
-
-use futures_channel::mpsc::UnboundedSender;
-use std::collections::HashMap;
-use std::net::SocketAddr;
-use std::sync::{Arc, Mutex};
-use tungstenite::Message;
-
 use crate::frontmatter_parser::parser::parse_file_with_frontmatter;
 
-pub type Tx = UnboundedSender<Message>;
-pub type PeerMap = Arc<Mutex<HashMap<SocketAddr, Tx>>>;
+pub fn parse_markdown(raw: &str) -> String {
+    let mut file = parse_file_with_frontmatter(raw);
 
-#[tokio::main]
-async fn main() {
-    env_logger::init();
-    //println!("{}", html);
-    let mut file = parse_file_with_frontmatter(include_str!("../test.md"));
-    /*println!(
-        "m:{}",
-        crate::parser::blocks::spec::thematic_break::thematic_break()
-            .start
-            .is_match("---")
-    );*/
     let parser = &mut markdown_it::MarkdownIt::new();
 
     markdown_it::plugins::cmark::inline::newline::add(parser);
@@ -56,13 +32,5 @@ async fn main() {
     file.document_content = crate::hooks::toc::toc(file.document_content);
 
     let ast = parser.parse(&file.document_content);
-    let _output = ast.render();
-    //println!("{}", output);
-
-    let sessions = PeerMap::new(Mutex::new(HashMap::new()));
-
-    let _ = tokio::join!(
-        tokio::spawn(crate::web::ws::ws_start(sessions.clone())),
-        tokio::spawn(crate::web::web_start(sessions.clone()))
-    );
+    ast.render()
 }

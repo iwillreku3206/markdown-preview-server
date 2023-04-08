@@ -20,7 +20,7 @@ pub async fn ping(State(state): State<PeerMap>) -> Json<PingResponse> {
     }
 
     let result = PingResponse {
-        status: "OK".to_string(),
+        status: "ok".to_string(),
     };
     Json(result)
 }
