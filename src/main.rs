@@ -5,17 +5,10 @@ pub mod util;
 pub mod web;
 
 use futures_channel::mpsc::UnboundedSender;
-use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::sync::{Arc, Mutex};
-use tokio::net::tcp::{OwnedReadHalf, OwnedWriteHalf};
-use tokio::sync::broadcast;
-use tokio::task::futures;
 use tungstenite::Message;
-
-use tokio::net::{TcpListener, TcpStream};
-use tokio_tungstenite::WebSocketStream;
 
 use crate::frontmatter_parser::parser::parse_file_with_frontmatter;
 
@@ -65,11 +58,9 @@ async fn main() {
     let _output = ast.render();
     //println!("{}", output);
 
-    let (tx, _) = broadcast::channel::<String>(32);
-
     let sessions = PeerMap::new(Mutex::new(HashMap::new()));
 
-    tokio::join!(
+    let _ = tokio::join!(
         tokio::spawn(crate::web::ws::ws_start(sessions.clone())),
         tokio::spawn(crate::web::web_start(sessions.clone()))
     );

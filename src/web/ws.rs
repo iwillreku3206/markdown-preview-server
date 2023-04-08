@@ -1,23 +1,10 @@
-use std::{
-    collections::HashMap,
-    env, future,
-    io::Error as IoError,
-    net::SocketAddr,
-    sync::{Arc, Mutex},
-};
+use std::{env};
 
-use futures::{
-    future::{ok, select},
-    SinkExt,
-};
-use futures_channel::mpsc::{unbounded, UnboundedSender};
+use futures::future::{ok, select};
+use futures_channel::mpsc::unbounded;
 use futures_util::{pin_mut, stream::TryStreamExt, StreamExt};
 
-use tokio::{
-    net::{TcpListener, TcpStream},
-    sync::broadcast::{Receiver, Sender},
-};
-use tungstenite::protocol::Message;
+use tokio::net::{TcpListener, TcpStream};
 
 use crate::PeerMap;
 
@@ -33,12 +20,12 @@ pub async fn ws_start(peers: PeerMap) {
     let listener = try_socket.expect("Failed to bind");
     eprintln!("Listening on: {}", addr);
 
-    while let Ok((stream, addr)) = listener.accept().await {
-        tokio::spawn(accept_connection(stream, peers.clone(), addr));
+    while let Ok((stream, _)) = listener.accept().await {
+        tokio::spawn(accept_connection(stream, peers.clone()));
     }
 }
 
-async fn accept_connection(stream: TcpStream, peers: PeerMap, addr: SocketAddr) {
+async fn accept_connection(stream: TcpStream, peers: PeerMap) {
     let addr = stream
         .peer_addr()
         .expect("connected streams should have a peer address");
@@ -50,8 +37,8 @@ async fn accept_connection(stream: TcpStream, peers: PeerMap, addr: SocketAddr) 
 
     eprintln!("New WebSocket connection: {}", addr);
 
-    let (mut write, read) = ws_stream.split();
-    
+    let (write, read) = ws_stream.split();
+
     let (tx, rx) = unbounded();
     peers.lock().unwrap().insert(addr, tx);
 
