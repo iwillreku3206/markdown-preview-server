@@ -4,12 +4,26 @@ pub mod markdown_extensions;
 pub mod util;
 pub mod web;
 
+use futures_channel::mpsc::UnboundedSender;
+use lazy_static::lazy_static;
+use std::collections::HashMap;
+use std::net::SocketAddr;
+use std::sync::{Arc, Mutex};
+use tokio::net::tcp::{OwnedReadHalf, OwnedWriteHalf};
+use tokio::sync::broadcast;
 use tokio::task::futures;
+use tungstenite::Message;
+
+use tokio::net::{TcpListener, TcpStream};
+use tokio_tungstenite::WebSocketStream;
 
 use crate::frontmatter_parser::parser::parse_file_with_frontmatter;
 
+pub type Tx = UnboundedSender<Message>;
+pub type PeerMap = Arc<Mutex<HashMap<SocketAddr, Tx>>>;
+
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() {
     env_logger::init();
     //println!("{}", html);
     let mut file = parse_file_with_frontmatter(include_str!("../test.md"));
@@ -50,8 +64,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let ast = parser.parse(&file.document_content);
     let _output = ast.render();
     //println!("{}", output);
-    loop {
-        tokio::spawn(async move { crate::web::ws::ws_start() });
-        tokio::spawn(async move { crate::web::web_start() });
-    }
+
+    let (tx, _) = broadcast::channel::<String>(32);
+
+    let sessions = PeerMap::new(Mutex::new(HashMap::new()));
+
+    tokio::join!(
+        tokio::spawn(crate::web::ws::ws_start(sessions.clone())),
+        tokio::spawn(crate::web::web_start(sessions.clone()))
+    );
 }

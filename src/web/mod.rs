@@ -1,12 +1,24 @@
+use std::sync::Arc;
+
+use axum::routing::get;
+use axum::Router;
+use tokio::sync::broadcast;
+
+use crate::PeerMap;
+
 mod ping;
+mod document;
 pub mod ws;
 
-use actix_web::{web, App, HttpServer};
+pub async fn web_start(sessions: PeerMap) {
+    eprintln!("Web server starting...");
 
-#[actix_web::main]
-pub async fn web_start() -> std::io::Result<()> {
-    HttpServer::new(move || App::new().service(ping::ping))
-        .bind(("127.0.0.1", 8080))?
-        .run()
+    let app = Router::new()
+        .route("/ping", get(ping::ping))
+        .with_state(sessions);
+
+    axum::Server::bind(&"127.0.0.1:8080".parse().unwrap())
+        .serve(app.into_make_service())
         .await
+        .unwrap();
 }
