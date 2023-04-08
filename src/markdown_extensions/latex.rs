@@ -8,6 +8,16 @@ pub struct InlineLaTeX {
     pub marker: char,
 }
 
+#[memoize::memoize]
+fn katex_opts() -> katex::Opts {
+    return katex::Opts::builder()
+        .display_mode(true)
+        .error_color("#ff0000")
+        .throw_on_error(false)
+        .build()
+        .unwrap();
+}
+
 // This defines how your custom node should be rendered.
 impl NodeValue for InlineLaTeX {
     fn render(&self, node: &Node, fmt: &mut dyn Renderer) {
@@ -26,8 +36,8 @@ impl NodeValue for InlineLaTeX {
             raw.push_str(&raw_content);
         });
 
-        let result = latex2mathml::latex_to_mathml(&raw, latex2mathml::DisplayStyle::Block)
-            .unwrap_or_default();
+                let result = latex2mathml::latex_to_mathml(&raw, latex2mathml::DisplayStyle::Block)
+                    .unwrap_or_default();
 
         fmt.text_raw(&result);
 
