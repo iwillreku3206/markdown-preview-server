@@ -52,7 +52,7 @@ pub fn remove_frontmatter(line_arr: Vec<&str>, frontmatter: HashMap<String, Stri
         .unwrap_or(&"0".to_string())
         .to_string()
         .parse::<usize>()
-        .unwrap_or_default()..line_arr.len() - 1];
+        .unwrap_or_default()..line_arr.len()];
 
     return document_content.join("\n");
 }

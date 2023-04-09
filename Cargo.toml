@@ -19,6 +19,7 @@ katex = "0.4.6"
 latex2mathml = "0.2.3"
 lazy_static = "1.4.0"
 markdown-it = "0.4.0"
+memoize = "0.4.0"
 rand = "0.8.5"
 regex = "1.7.1"
 serde = { version = "1.0.156", features = ["derive"] }

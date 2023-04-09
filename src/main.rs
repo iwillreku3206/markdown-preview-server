@@ -20,7 +20,7 @@ pub type PeerMap = Arc<Mutex<HashMap<SocketAddr, Tx>>>;
 async fn main() {
     env_logger::init();
     //println!("{}", html);
-    let mut file = parse_file_with_frontmatter(include_str!("../test.md"));
+    let mut file = parse_file_with_frontmatter(include_str!("../test2.md"));
     /*println!(
         "m:{}",
         crate::parser::blocks::spec::thematic_break::thematic_break()
@@ -56,8 +56,9 @@ async fn main() {
     file.document_content = crate::hooks::toc::toc(file.document_content);
 
     let ast = parser.parse(&file.document_content);
-    let _output = ast.render();
-    //println!("{}", output);
+    // let output = ast.render();
+    let output = markdown::parse_markdown(&file.document_content);
+    println!("{}", output);
 
     let sessions = PeerMap::new(Mutex::new(HashMap::new()));
 

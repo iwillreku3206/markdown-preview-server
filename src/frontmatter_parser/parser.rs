@@ -13,8 +13,8 @@ pub fn parse_file_with_frontmatter(file: &str) -> DocumentWithFrontmatter {
     let frontmatter = read_frontmatter(lines);
     let document_content = remove_frontmatter(line_arr, frontmatter.clone());
 
-    return DocumentWithFrontmatter {
-        frontmatter: frontmatter,
-        document_content: document_content,
-    };
+    DocumentWithFrontmatter {
+        frontmatter,
+        document_content,
+    }
 }

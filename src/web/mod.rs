@@ -1,4 +1,4 @@
-use axum::routing::{get, post_service};
+use axum::routing::{get, post};
 use axum::Router;
 
 use crate::PeerMap;
@@ -12,7 +12,7 @@ pub async fn web_start(sessions: PeerMap) {
 
     let app = Router::new()
         .route("/ping", get(ping::ping))
-        .route("/document", post_service(document::document))
+        .route("/document", post(document::document))
         .with_state(sessions);
 
     axum::Server::bind(&"127.0.0.1:8080".parse().unwrap())

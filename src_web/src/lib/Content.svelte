@@ -3,7 +3,7 @@
 
   let testHtml = "";
   subscribe((data) => {
-    testHtml = testHtml +  data;
+    testHtml = data;
   });
 </script>
 
