@@ -24,10 +24,8 @@ pub async fn document(
 
     let markdown = crate::markdown::parse_markdown(&raw);
 
-    println!("raw::{}\nmd::{:?}", raw, markdown);
 
     for recp in broadcast_recipients {
-        println!("{:?}", recp);
         recp.unbounded_send(Message::text(markdown.to_string()))
             .unwrap();
     }
