@@ -1,19 +1,15 @@
-use std::env;
-
 use futures::future::{ok, select};
 use futures_channel::mpsc::unbounded;
 use futures_util::{pin_mut, stream::TryStreamExt, StreamExt};
 
 use tokio::net::{TcpListener, TcpStream};
 
-use crate::PeerMap;
+use crate::{Args, PeerMap};
 
-pub async fn ws_start(peers: PeerMap) {
+pub async fn ws_start(peers: PeerMap, args: Args) {
     log::info!("Starting websocket server");
     let _ = env_logger::try_init();
-    let addr = env::args()
-        .nth(1)
-        .unwrap_or_else(|| "127.0.0.1:8081".to_string());
+    let addr = format!("127.0.0.1:{}", args.websocket_port);
 
     // Create the event loop and TCP listener we'll accept connections on.
     let try_socket = TcpListener::bind(&addr).await;

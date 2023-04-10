@@ -8,16 +8,6 @@ pub struct InlineLaTeX {
     pub marker: char,
 }
 
-#[memoize::memoize]
-fn katex_opts() -> katex::Opts {
-    return katex::Opts::builder()
-        .display_mode(true)
-        .error_color("#ff0000")
-        .throw_on_error(false)
-        .build()
-        .unwrap();
-}
-
 // This defines how your custom node should be rendered.
 impl NodeValue for InlineLaTeX {
     fn render(&self, node: &Node, fmt: &mut dyn Renderer) {
