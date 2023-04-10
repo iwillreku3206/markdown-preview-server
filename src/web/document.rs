@@ -1,7 +1,7 @@
 use axum::{extract::State, Json};
 use tungstenite::Message;
 
-use crate::PeerMap;
+use super::AppState;
 
 #[derive(serde::Deserialize)]
 pub struct DocumentRequest {
@@ -14,16 +14,18 @@ pub struct DocumentResponse {
 }
 
 pub async fn document(
-    State(state): State<PeerMap>,
+    State(state): State<AppState>,
     payload: Json<DocumentRequest>,
 ) -> Json<DocumentResponse> {
-    let sessions = state.lock().unwrap();
+    let sessions = state.sessions.lock().unwrap();
     let broadcast_recipients = sessions.iter().map(|(_, ws_sink)| ws_sink);
 
     let raw = payload.0.text.to_string();
 
-    let markdown = crate::markdown::parse_markdown(&raw);
-
+    let mut markdown: String = "<style>".to_string();
+    markdown.push_str(&state.pre_state.css);
+    markdown.push_str("</style>");
+    markdown.push_str(&crate::markdown::parse_markdown(&raw));
 
     for recp in broadcast_recipients {
         recp.unbounded_send(Message::text(markdown.to_string()))

@@ -4,12 +4,12 @@ use futures_util::{pin_mut, stream::TryStreamExt, StreamExt};
 
 use tokio::net::{TcpListener, TcpStream};
 
-use crate::{Args, PeerMap};
+use crate::{PeerMap, PreState};
 
-pub async fn ws_start(peers: PeerMap, args: Args) {
+pub async fn ws_start(peers: PeerMap, pre_state: PreState) {
     log::info!("Starting websocket server");
     let _ = env_logger::try_init();
-    let addr = format!("127.0.0.1:{}", args.websocket_port);
+    let addr = format!("127.0.0.1:{}", pre_state.args.websocket_port);
 
     // Create the event loop and TCP listener we'll accept connections on.
     let try_socket = TcpListener::bind(&addr).await;
