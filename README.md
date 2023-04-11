@@ -14,7 +14,7 @@ Each render of the document should ideally be lower than 16.6ms, which is the ti
 * **CommonMark compliance**. The server uses the [`markdown-it.rs`](https://crates.io/crates/markdown-it) library, which has full CommonMark compliance
 * **LaTeX support**. The server is able to translate LaTeX functions into MathML for render in the browser
 * **Syntax highlighting**. The server is able to highlight code blocks using the [`syntect`](https://crates.io/crates/syntect) library
-* **Table of Contents**. The server is able to generate a table of contents for the document using the `[toc] block`
+* **Table of Contents**. The server is able to generate a table of contents for the document using the `[toc]` block
 * **Custom CSS**. The server can be configured to use a custom CSS file for styling the preview page
 
 ## Installation
