@@ -6,6 +6,7 @@ use axum::Router;
 use crate::{PeerMap, PreState};
 
 mod document;
+mod frontend;
 mod ping;
 pub mod ws;
 
@@ -19,6 +20,7 @@ pub async fn web_start(sessions: PeerMap, pre_state: PreState) {
     let app = Router::new()
         .route("/ping", get(ping::ping))
         .route("/document", post(document::document))
+        .fallback(frontend::frontend)
         .with_state(AppState {
             sessions,
             pre_state: pre_state.clone(),
