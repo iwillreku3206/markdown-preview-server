@@ -1,14 +1,37 @@
 <script lang="ts">
+  import { scrollToBottom } from "../util/scrollToBottom";
+
+  export let followBottom: boolean;
+
   import { subscribe } from "../ws";
 
-  let testHtml = "";
+  let iframe: HTMLIFrameElement;
+
+  let iframeHeight =
+    iframe?.contentWindow?.document.getElementsByTagName("html").item(0)
+      .scrollHeight || document.body.scrollHeight;
+
   subscribe((data) => {
-    testHtml = data;
+    if (iframe && iframe.contentWindow.document.body) {
+      iframe.contentWindow.document.body.innerHTML = data;
+      iframeHeight = iframe.contentWindow.document
+        .getElementsByTagName("html")
+        .item(0).scrollHeight;
+      if (followBottom) {
+        scrollToBottom();
+      }
+    }
   });
 </script>
 
 <div class="content-container">
-  <iframe class="content" title="document" srcdoc={testHtml} />
+  <div />
+  <iframe
+    bind:this={iframe}
+    class="content"
+    title="document"
+    height={iframeHeight}
+  />
 </div>
 
 <style>
@@ -22,14 +45,12 @@
   }
 
   .content {
-    display: block;
     background: white;
     margin: 2rem;
     margin-top: 1rem;
     width: 100%;
-    height: 100%;
-    min-height: 80rem;
     border: 1px solid var(--background-disabled);
+    padding: none;
   }
 
   @media (min-width: 768px) {

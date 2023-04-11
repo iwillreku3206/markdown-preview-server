@@ -11,7 +11,6 @@ ws.onopen = () => {
 ws.onmessage = (event) => {
   messageStore.set('')
   messageStore.set(event.data)
-  console.log(event.data)
 }
 
 export const subscribe = messageStore.subscribe

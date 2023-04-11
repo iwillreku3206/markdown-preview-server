@@ -1,15 +1,16 @@
 <script lang="ts">
   import Content from "./lib/Content.svelte";
-  import {subscribe} from "./ws";
+  import { subscribe } from "./ws";
 
   let dark = true;
-
-  subscribe((data) => {
-    console.log(data);
-  });
+  let followBottom = false;
 
   function toggleDarkMode() {
     dark = !dark;
+  }
+
+  function toggleFollow() {
+    followBottom = !followBottom;
   }
 </script>
 
@@ -18,6 +19,11 @@
     <p class="topbar-text">Markdown Preview Server</p>
     <p class="topbar-center">File Name</p>
     <div class="topbar-right">
+      <button on:click={toggleFollow} class="topbar-button">
+        <spawn class="material-symbols-outlined">
+          {followBottom ? "arrow_downward" : "arrow_upward"}
+        </spawn>
+      </button>
       <button on:click={toggleDarkMode} class="topbar-button">
         <span class="material-symbols-outlined">
           {!dark ? "dark_mode" : "light_mode"}
@@ -25,7 +31,7 @@
       </button>
     </div>
   </div>
-  <Content />
+  <Content {followBottom} />
 </main>
 
 <style>
