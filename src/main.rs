@@ -3,6 +3,7 @@ pub mod frontmatter_parser;
 pub mod hooks;
 pub mod markdown;
 pub mod markdown_extensions;
+pub mod patches;
 pub mod util;
 pub mod web;
 

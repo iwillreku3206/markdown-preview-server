@@ -7,7 +7,7 @@ pub fn parse_markdown(raw: &str) -> String {
 
     markdown_it::plugins::cmark::inline::newline::add(parser);
     markdown_it::plugins::cmark::inline::escape::add(parser);
-    markdown_it::plugins::cmark::inline::backticks::add(parser);
+    crate::markdown_extensions::backticks::add(parser);
     markdown_it::plugins::cmark::inline::emphasis::add(parser);
     markdown_it::plugins::cmark::inline::link::add(parser);
     markdown_it::plugins::cmark::inline::image::add(parser);
