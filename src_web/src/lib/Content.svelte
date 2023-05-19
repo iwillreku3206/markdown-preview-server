@@ -11,9 +11,36 @@
     iframe?.contentWindow?.document.getElementsByTagName("html").item(0)
       .scrollHeight || document.body.scrollHeight;
 
+  const mathmlSupport = !!window.MathMLElement;
+  const mathjax = `
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"><\/script>
+    <script id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"><\/script>
+  `;
+
+  const defaultDoc = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"><\/script>
+    <script id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"><\/script>
+    </head>
+    <body>
+    </body>
+    </html>
+  `;
+
   subscribe((data) => {
     if (iframe && iframe.contentWindow.document.body) {
       iframe.contentWindow.document.body.innerHTML = data;
+      iframe.contentWindow.document.body.innerHTML += mathmlSupport
+        ? ""
+        : mathjax;
+      if (!mathmlSupport && (iframe.contentWindow as any).MathJax) {
+        (iframe.contentWindow as any).MathJax.typeset();
+      }
+      iframe.contentWindow.document.body.innerHTML += mathmlSupport;
       iframeHeight = iframe.contentWindow.document
         .getElementsByTagName("html")
         .item(0).scrollHeight;
@@ -31,6 +58,8 @@
     class="content"
     title="document"
     height={iframeHeight}
+    srcdoc={defaultDoc}
+    sandbox="allow-scripts allow-same-origin"
   />
 </div>
 
