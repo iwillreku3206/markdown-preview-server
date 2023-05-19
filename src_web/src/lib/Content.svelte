@@ -34,13 +34,9 @@
   subscribe((data) => {
     if (iframe && iframe.contentWindow.document.body) {
       iframe.contentWindow.document.body.innerHTML = data;
-      iframe.contentWindow.document.body.innerHTML += mathmlSupport
-        ? ""
-        : mathjax;
       if (!mathmlSupport && (iframe.contentWindow as any).MathJax) {
         (iframe.contentWindow as any).MathJax.typeset();
       }
-      iframe.contentWindow.document.body.innerHTML += mathmlSupport;
       iframeHeight = iframe.contentWindow.document
         .getElementsByTagName("html")
         .item(0).scrollHeight;
