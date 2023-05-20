@@ -1,6 +1,8 @@
 use axum::{extract::State, Json};
 use tungstenite::Message;
 
+use crate::util::constants::magic_bytes::BYTES_DATA;
+
 use super::AppState;
 
 #[derive(serde::Deserialize)]
@@ -27,8 +29,12 @@ pub async fn document(
     markdown.push_str("</style>");
     markdown.push_str(&crate::markdown::parse_markdown(&raw));
 
+    let mut payload: Vec<u8> = Vec::from(BYTES_DATA);
+
+    payload.append(&mut markdown.clone().as_bytes().to_vec());
+
     for recp in broadcast_recipients {
-        recp.unbounded_send(Message::text(markdown.to_string()))
+        recp.unbounded_send(Message::Binary(payload.clone()))
             .unwrap();
     }
 

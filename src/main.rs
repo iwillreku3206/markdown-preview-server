@@ -36,6 +36,10 @@ pub struct Args {
 
     #[arg(long = "websocket-port", value_name = "PORT", default_value = "8081")]
     websocket_port: u16,
+
+    /// (For development) Address to connect to frontend
+    #[arg(long = "frontend-address", value_name = "ADDRESS", default_value = "")]
+    frontend_address: String,
 }
 
 #[derive(Clone)]
