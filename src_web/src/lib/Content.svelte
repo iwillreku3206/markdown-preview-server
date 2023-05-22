@@ -1,6 +1,5 @@
 <script lang="ts">
   import { scrollToBottom } from "../util/scrollToBottom";
-  import { Base64 } from "js-base64";
 
   export let followBottom: boolean;
 

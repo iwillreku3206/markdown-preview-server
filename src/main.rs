@@ -7,7 +7,6 @@ pub mod patches;
 pub mod util;
 pub mod web;
 
-use base64::{engine::general_purpose, Engine};
 use clap::Parser;
 use env_logger::Env;
 use futures::lock::Mutex;
