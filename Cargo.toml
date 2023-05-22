@@ -1,14 +1,15 @@
 [package]
 name = "markdown-preview-server"
-version = "0.2.3"
+version = "0.3.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 axum = "0.6.12"
-base64 = "0.21.0"
+axum-macros = "0.3.7"
 clap = { version = "4.1.8", features = ["derive"] }
+delay = "0.3.1"
 env_logger = "0.10.0"
 futures = "0.3.28"
 futures-channel = "0.3.28"
@@ -28,9 +29,6 @@ tokio-tungstenite = "0.18.0"
 tower-http = { version = "0.4.0", features = ["full"] }
 tungstenite = "0.18.0"
 yaml-rust = "0.4.5"
-
-[dev-dependencies]
-axum-macros = "0.3.7"
 
 [profile.release]
 opt-level = 3

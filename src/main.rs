@@ -7,14 +7,17 @@ pub mod patches;
 pub mod util;
 pub mod web;
 
+use base64::{engine::general_purpose, Engine};
 use clap::Parser;
 use env_logger::Env;
+use futures::lock::Mutex;
 use futures_channel::mpsc::UnboundedSender;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::net::SocketAddr;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use tungstenite::Message;
+use util::constants::magic_bytes::{BYTES_CSS, BYTES_DATA};
 
 pub type Tx = UnboundedSender<Message>;
 pub type PeerMap = Arc<Mutex<HashMap<SocketAddr, Tx>>>;
@@ -44,9 +47,21 @@ pub struct Args {
 
 #[derive(Clone)]
 pub struct PreState {
-    css: String,
     args: Args,
+    current_content_payload: Vec<u8>,
+    current_css_payload: Vec<u8>,
 }
+
+impl PreState {
+    pub fn set_content_payload(&mut self, payload: Vec<u8>) {
+        self.current_content_payload = payload;
+    }
+    pub fn set_css_payload(&mut self, payload: Vec<u8>) {
+        self.current_css_payload = payload;
+    }
+}
+
+unsafe impl Send for PreState {}
 
 #[tokio::main]
 async fn main() {
@@ -56,10 +71,14 @@ async fn main() {
 
     let css = css::open_user_css(args.clone().css);
 
-    let pre_state = PreState {
-        css,
+    let mut css_payload = BYTES_CSS.to_vec();
+    css_payload.append(&mut css.clone().as_bytes().to_vec());
+
+    let pre_state = Arc::new(Mutex::new(PreState {
         args: args.clone(),
-    };
+        current_content_payload: BYTES_DATA.to_vec(),
+        current_css_payload: css_payload,
+    }));
 
     let sessions = PeerMap::new(Mutex::new(HashMap::new()));
 

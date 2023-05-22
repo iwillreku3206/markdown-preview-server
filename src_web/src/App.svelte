@@ -1,6 +1,5 @@
 <script lang="ts">
   import Content from "./lib/Content.svelte";
-  import { subscribe } from "./ws";
 
   let dark = true;
   let followBottom = false;

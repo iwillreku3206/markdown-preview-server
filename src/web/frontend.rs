@@ -1,17 +1,26 @@
+use std::sync::Arc;
+
 use axum::{
     body::{self, Bytes, Full},
     extract::State,
     http::{header, HeaderValue, Response, StatusCode, Uri},
     response::IntoResponse,
 };
+
+use axum_macros::debug_handler;
+use futures::lock::Mutex;
 use include_dir::include_dir;
 use include_dir::Dir;
 
 use super::AppState;
 
 static WEB_BUILD: Dir<'_> = include_dir!("assets/web_build");
-pub async fn frontend(State(state): State<AppState>, _path: Uri) -> impl IntoResponse {
-    let frontend_address = state.pre_state.args.frontend_address;
+
+#[debug_handler]
+pub async fn frontend(_path: Uri, State(state): State<Arc<Mutex<AppState>>>) -> impl IntoResponse {
+    let pre_state = state.lock().await;
+
+    let frontend_address = &pre_state.pre_state.lock().await.args.frontend_address;
     let path = _path.to_string().trim_start_matches('/').to_string();
     if frontend_address.is_empty() {
         if path.is_empty() {
@@ -40,16 +49,26 @@ pub async fn frontend(State(state): State<AppState>, _path: Uri) -> impl IntoRes
                 .unwrap(),
         }
     } else {
-        let uri = frontend_address + "/" + &path;
+        let uri = frontend_address.to_owned() + "/" + &path;
         let _res = reqwest::get(uri).await;
         let res = _res.unwrap();
 
         let status = res.status();
+        let headers_list = res.headers().clone();
+
         let body = res.bytes().await.unwrap_or_else(|_| Bytes::new());
 
-        Response::builder()
-            .status(status)
-            .body(body::boxed(Full::from(body)))
+        let mut builder = Response::builder().status(status);
+        let headers = builder.headers_mut().unwrap();
+
+        for header in headers_list {
+            headers.insert(header.0.unwrap(), header.1);
+        }
+
+        headers.insert("Access-Control-Allow-Origin", "*".parse().unwrap());
+
+        builder
+            .body(body::boxed(Full::from(body.to_vec())))
             .unwrap()
     }
 }

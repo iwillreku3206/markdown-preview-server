@@ -1,16 +1,17 @@
 import { writable } from "svelte/store"
 
-const ws = new WebSocket('ws://127.0.0.1:8081')
+export default function connect() {
+  const ws = new WebSocket('ws://127.0.0.1:8081')
 
-const messageStore = writable('')
+  const messageStore = writable<string | Blob>('')
 
-ws.onopen = () => {
-  console.log('connected')
+  ws.onopen = () => {
+    console.log('connected')
+  }
+
+  ws.onmessage = (event) => {
+    messageStore.set('')
+    messageStore.set(event.data)
+  }
+  return messageStore.subscribe
 }
-
-ws.onmessage = (event) => {
-  messageStore.set('')
-  messageStore.set(event.data)
-}
-
-export const subscribe = messageStore.subscribe

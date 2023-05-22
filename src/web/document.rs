@@ -1,4 +1,7 @@
+use std::{borrow::BorrowMut, sync::Arc};
+
 use axum::{extract::State, Json};
+use futures::lock::Mutex;
 use tungstenite::Message;
 
 use crate::util::constants::magic_bytes::BYTES_DATA;
@@ -16,23 +19,23 @@ pub struct DocumentResponse {
 }
 
 pub async fn document(
-    State(state): State<AppState>,
+    State(state): State<Arc<Mutex<AppState>>>,
     payload: Json<DocumentRequest>,
 ) -> Json<DocumentResponse> {
-    let sessions = state.sessions.lock().unwrap();
-    let broadcast_recipients = sessions.iter().map(|(_, ws_sink)| ws_sink);
+    let unlocked_state = &mut state.lock().await;
 
     let raw = payload.0.text.to_string();
 
-    let mut markdown: String = "<style>".to_string();
-    markdown.push_str(&state.pre_state.css);
-    markdown.push_str("</style>");
-    markdown.push_str(&crate::markdown::parse_markdown(&raw));
+    let markdown: String = crate::markdown::parse_markdown(&raw);
 
     let mut payload: Vec<u8> = Vec::from(BYTES_DATA);
 
     payload.append(&mut markdown.clone().as_bytes().to_vec());
 
+    let _ = unlocked_state.set_content_payload(&payload).await;
+
+    let sessions = &unlocked_state.sessions.lock().await;
+    let broadcast_recipients = sessions.iter().map(|(_, ws_sink)| ws_sink);
     for recp in broadcast_recipients {
         recp.unbounded_send(Message::Binary(payload.clone()))
             .unwrap();

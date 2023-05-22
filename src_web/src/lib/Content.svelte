@@ -1,21 +1,19 @@
 <script lang="ts">
   import { scrollToBottom } from "../util/scrollToBottom";
+  import { Base64 } from "js-base64";
 
   export let followBottom: boolean;
 
-  import { subscribe } from "../ws";
+  import connect from "../ws";
+  import { onMount } from "svelte";
 
   let iframe: HTMLIFrameElement;
+  const decoder = new TextDecoder("utf-8", { fatal: false, ignoreBOM: true });
+  const mathmlSupport = !!window.MathMLElement;
 
   let iframeHeight =
     iframe?.contentWindow?.document.getElementsByTagName("html").item(0)
       .scrollHeight || document.body.scrollHeight;
-
-  const mathmlSupport = !!window.MathMLElement;
-  const mathjax = `
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"><\/script>
-    <script id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"><\/script>
-  `;
 
   const defaultDoc = `
     <!DOCTYPE html>
@@ -31,19 +29,36 @@
     </html>
   `;
 
-  subscribe((data) => {
-    if (iframe && iframe.contentWindow.document.body) {
-      iframe.contentWindow.document.body.innerHTML = data;
-      if (!mathmlSupport && (iframe.contentWindow as any).MathJax) {
-        (iframe.contentWindow as any).MathJax.typeset();
-      }
-      iframeHeight = iframe.contentWindow.document
-        .getElementsByTagName("html")
-        .item(0).scrollHeight;
-      if (followBottom) {
-        scrollToBottom();
-      }
-    }
+  let content = "";
+  let css = "";
+
+  onMount(() => {
+    iframe.addEventListener("load", () => {
+      const subscribe = connect();
+      subscribe((data) => {
+        if (data instanceof Blob) {
+          data.arrayBuffer().then((buf) => {
+            const magicBytes = new Uint8Array(buf.slice(0, 4)).join("");
+            if (magicBytes === "68658465") {
+              content = decoder.decode(new Uint8Array(buf.slice(4)));
+            } else if (magicBytes === "67838332") {
+              css = decoder.decode(new Uint8Array(buf.slice(4)));
+            }
+
+            iframe.contentWindow.document.body.innerHTML = `<style>${css}</style> ${content}`;
+            if (!mathmlSupport && (iframe.contentWindow as any).MathJax) {
+          (iframe.contentWindow as any).MathJax.typeset();
+        }
+        iframeHeight = iframe.contentWindow.document
+          .getElementsByTagName("html")
+          .item(0).scrollHeight;
+        if (followBottom) {
+          scrollToBottom();
+        }
+          });
+        }
+      });
+    });
   });
 </script>
 
