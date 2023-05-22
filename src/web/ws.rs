@@ -1,10 +1,8 @@
-use std::{sync::Arc, time::Duration};
+use std::sync::Arc;
 
-use delay::Delay;
 use futures::{
     future::{ok, select},
-    lock::Mutex,
-    SinkExt,
+    lock::Mutex
 };
 use futures_channel::mpsc::unbounded;
 use futures_util::{pin_mut, stream::TryStreamExt, StreamExt};
