@@ -20,6 +20,8 @@
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="/assets/css/jetbrainsmono.css">
+      <link rel="stylesheet" href="/assets/css/roboto.css">
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"><\/script>
     <script id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"><\/script>
     </head>
@@ -46,14 +48,14 @@
 
             iframe.contentWindow.document.body.innerHTML = `<style>${css}</style> ${content}`;
             if (!mathmlSupport && (iframe.contentWindow as any).MathJax) {
-          (iframe.contentWindow as any).MathJax.typeset();
-        }
-        iframeHeight = iframe.contentWindow.document
-          .getElementsByTagName("html")
-          .item(0).scrollHeight;
-        if (followBottom) {
-          scrollToBottom();
-        }
+              (iframe.contentWindow as any).MathJax.typeset();
+            }
+            iframeHeight = iframe.contentWindow.document
+              .getElementsByTagName("html")
+              .item(0).scrollHeight;
+            if (followBottom) {
+              scrollToBottom();
+            }
           });
         }
       });
