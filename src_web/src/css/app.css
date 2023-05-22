@@ -3,6 +3,10 @@ body {
   font-family: Roboto, Arial, Helvetica, sans-serif;
 }
 
+code {
+  font-family: Jetbrains Mono, monospace;
+}
+
 :root {
   --primary: #2060b0;
   --secondary: #4d80c0;
