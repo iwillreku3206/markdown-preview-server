@@ -8,6 +8,7 @@ pub mod util;
 pub mod web;
 
 use clap::Parser;
+use css::watch_user_css;
 use env_logger::Env;
 use futures::lock::Mutex;
 use futures_channel::mpsc::UnboundedSender;
@@ -86,6 +87,11 @@ async fn main() {
             sessions.clone(),
             pre_state.clone()
         )),
-        tokio::spawn(crate::web::web_start(sessions.clone(), pre_state.clone()))
+        tokio::spawn(crate::web::web_start(sessions.clone(), pre_state.clone())),
+        tokio::spawn(watch_user_css(
+            args.clone().css,
+            pre_state.clone(),
+            sessions.clone(),
+        ))
     );
 }
