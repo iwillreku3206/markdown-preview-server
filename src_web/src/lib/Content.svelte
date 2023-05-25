@@ -47,7 +47,7 @@
             }
 
             iframe.contentWindow.document.body.innerHTML = `<style>${css}</style> ${content}`;
-            if (!mathmlSupport && (iframe.contentWindow as any).MathJax) {
+            if ((!mathmlSupport || navigator.userAgent.includes('Chrome')) && (iframe.contentWindow as any).MathJax) {
               (iframe.contentWindow as any).MathJax.typeset();
             }
             iframeHeight = iframe.contentWindow.document
