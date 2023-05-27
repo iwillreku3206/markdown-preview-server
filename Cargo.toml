@@ -18,6 +18,7 @@ include_dir = "0.7.3"
 latex2mathml = "0.2.3"
 log = "0.4.17"
 markdown-it = "0.4.0"
+meval = "0.2.0"
 mime_guess = "2.0.4"
 notify = { version = "6.0.0", default-features = false, features = ["macos_kqueue"] }
 plotters = "0.3.4"

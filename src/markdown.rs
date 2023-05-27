@@ -28,6 +28,7 @@ pub fn parse_markdown(raw: &str) -> String {
     crate::markdown_extensions::newline::add(parser);
     crate::markdown_extensions::heading_with_id::add(parser);
     crate::markdown_extensions::code_block::add(parser);
+    crate::markdown_extensions::equation_graph::add(parser);
     file.document_content = crate::hooks::toc::toc(file.document_content);
 
     let ast = parser.parse(&file.document_content);
