@@ -412,6 +412,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "convert_case"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6245d59a3e82a7fc217c5828a6692dbc6dfb63a0c8c90495621f7b9d79704a0e"
+
+[[package]]
 name = "core-foundation"
 version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -508,6 +514,25 @@ dependencies = [
  "quote",
  "syn 1.0.109",
 ]
+
+[[package]]
+name = "derive_more"
+version = "0.99.17"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4fb810d30a7c1953f91334de7244731fc3f3c10d7fe163338a35b9f640960321"
+dependencies = [
+ "convert_case",
+ "proc-macro2",
+ "quote",
+ "rustc_version 0.4.0",
+ "syn 1.0.109",
+]
+
+[[package]]
+name = "deunicode"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "850878694b7933ca4c9569d30a34b55031b9b139ee1fc7b94a527c4ef960d690"
 
 [[package]]
 name = "digest"
@@ -1280,13 +1305,14 @@ dependencies = [
 
 [[package]]
 name = "markdown-it"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c9250c537c98bd661f7f1379e2ed8660a9574bf3e8c8e879575ffcb3aa640777"
+checksum = "53107ab22a09ae3b2eaedccf1d1c6aa58c1aa77e15689a799e0d8eda2b1a7d54"
 dependencies = [
  "argparse",
  "const_format",
  "derivative",
+ "derive_more",
  "downcast-rs",
  "entities",
  "html-escape",
@@ -1324,6 +1350,7 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
+ "slug",
  "syntect",
  "tokio",
  "tokio-tungstenite",
@@ -1594,7 +1621,7 @@ version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39fe46acc5503595e5949c17b818714d26fdf9b4920eacf3b2947f0199f4a6ff"
 dependencies = [
- "rustc_version",
+ "rustc_version 0.3.3",
 ]
 
 [[package]]
@@ -1902,7 +1929,16 @@ version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f0dfe2087c51c460008730de8b57e6a320782fbfb312e1f4d520e6c6fae155ee"
 dependencies = [
- "semver",
+ "semver 0.11.0",
+]
+
+[[package]]
+name = "rustc_version"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bfa0f585226d2e68097d4f95d113b15b83a82e819ab25717ec0590d9584ef366"
+dependencies = [
+ "semver 1.0.17",
 ]
 
 [[package]]
@@ -1992,6 +2028,12 @@ checksum = "f301af10236f6df4160f7c3f04eec6dbc70ace82d23326abad5edee88801c6b6"
 dependencies = [
  "semver-parser",
 ]
+
+[[package]]
+name = "semver"
+version = "1.0.17"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bebd363326d05ec3e2f532ab7660680f3b02130d780c299bca73469d521bc0ed"
 
 [[package]]
 name = "semver-parser"
@@ -2087,6 +2129,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6528351c9bc8ab22353f9d776db39a20288e8d6c37ef8cfe3317cf875eecfc2d"
 dependencies = [
  "autocfg",
+]
+
+[[package]]
+name = "slug"
+version = "0.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b3bc762e6a4b6c6fcaade73e77f9ebc6991b676f88bb2358bddb56560f073373"
+dependencies = [
+ "deunicode",
 ]
 
 [[package]]

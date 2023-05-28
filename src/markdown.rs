@@ -21,6 +21,7 @@ pub fn parse_markdown(raw: &str) -> String {
     markdown_it::plugins::cmark::block::reference::add(parser);
     markdown_it::plugins::cmark::block::lheading::add(parser);
     markdown_it::plugins::cmark::block::paragraph::add(parser);
+    markdown_it::plugins::extra::typographer::add(parser);
 
     markdown_it::plugins::html::add(parser);
     markdown_it::plugins::extra::tables::add(parser);
@@ -29,6 +30,8 @@ pub fn parse_markdown(raw: &str) -> String {
     crate::markdown_extensions::heading_with_id::add(parser);
     crate::markdown_extensions::code_block::add(parser);
     crate::markdown_extensions::equation_graph::add(parser);
+    crate::markdown_extensions::custom_class::add(parser);
+
     file.document_content = crate::hooks::toc::toc(file.document_content);
 
     let ast = parser.parse(&file.document_content);
