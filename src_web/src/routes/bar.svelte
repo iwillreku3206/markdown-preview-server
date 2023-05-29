@@ -1,0 +1,39 @@
+<script lang="ts">
+	import { messageStore } from '../websocket';
+	import { BYTES_FILENAME, BYTES_FRONTMATTER } from '../websocketPrefixes';
+
+	let title = 'No Document Loaded';
+	let fileName = '';
+
+	messageStore.subscribe(async (message) => {
+		const buf = await message.arrayBuffer();
+		const bytes = new Uint8Array(buf);
+		const magicBytes = bytes.slice(0, 4).join('');
+		if (magicBytes === BYTES_FILENAME) {
+			title = new TextDecoder().decode(bytes.slice(4));
+		}
+
+		if (magicBytes === BYTES_FRONTMATTER) {
+			try {
+				const frontmatter = new TextDecoder().decode(bytes.slice(4));
+        const parsedFrontmatter = JSON.parse(frontmatter)
+        parsedFrontmatter.title && (title = parsedFrontmatter.title)
+			} catch (e) {
+				console.error('Invalid Frontmatter: ', e);
+			}
+		}
+	});
+</script>
+
+<div class="flex flex-row h-16 bg-base-200 items-center px-4">
+	<h6 class="flex-1 flex justify-start items-center text-xl font-semibold">
+		Markdown Preview Server
+	</h6>
+	<h6 class="flex-1 flex justify-center items-center">
+		<div class="flex flex-col text-center">
+			<div class="text-xl font-bold">{title}</div>
+			<div class="text-sm">{fileName}</div>
+		</div>
+	</h6>
+	<div class="flex-1 flex justify-end items-center">Right</div>
+</div>
