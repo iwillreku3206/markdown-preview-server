@@ -4,7 +4,11 @@ import daisyui from 'daisyui';
 export default {
   content: ["./src/**/*.{html,svelte,ts,js}"],
   theme: {
-    extend: {},
+    extend: {
+      maxWidth: {
+        'container': '1024px'
+      }
+    },
   },
   plugins: [daisyui],
 }

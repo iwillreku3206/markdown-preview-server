@@ -6,6 +6,7 @@
 	let fileName = '';
 
 	messageStore.subscribe(async (message) => {
+  if (!message) return
 		const buf = await message.arrayBuffer();
 		const bytes = new Uint8Array(buf);
 		const magicBytes = bytes.slice(0, 4).join('');
@@ -16,8 +17,8 @@
 		if (magicBytes === BYTES_FRONTMATTER) {
 			try {
 				const frontmatter = new TextDecoder().decode(bytes.slice(4));
-        const parsedFrontmatter = JSON.parse(frontmatter)
-        parsedFrontmatter.title && (title = parsedFrontmatter.title)
+				const parsedFrontmatter = JSON.parse(frontmatter);
+				parsedFrontmatter.title && (title = parsedFrontmatter.title);
 			} catch (e) {
 				console.error('Invalid Frontmatter: ', e);
 			}
@@ -25,7 +26,7 @@
 	});
 </script>
 
-<div class="flex flex-row h-16 bg-base-200 items-center px-4">
+<div class="flex flex-row h-16 bg-base-300 items-center px-4 w-full">
 	<h6 class="flex-1 flex justify-start items-center text-xl font-semibold">
 		Markdown Preview Server
 	</h6>
