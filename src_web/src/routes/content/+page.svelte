@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { messageStore } from '../../websocket';
 	import { BYTES_CSS, BYTES_DATA } from '../../websocketPrefixes';
+	import('https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js');
 
 	let content = '';
 	let css = '';
@@ -18,6 +19,10 @@
 			if (magicBytes === BYTES_DATA) {
 				content = new TextDecoder().decode(bytes.slice(4));
 				contentElm.innerHTML = content;
+				if (navigator.userAgent.includes('Chrome') || !window.MathMLElement) {
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					(window as any).MathJax.typeset();
+				}
 			}
 
 			if (magicBytes === BYTES_CSS) {
