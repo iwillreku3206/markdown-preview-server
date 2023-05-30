@@ -40,8 +40,9 @@
 
 <style>
 	main {
+		background-color: white;
 		word-wrap: break-word;
 		overflow-wrap: break-word;
-    word-break: break-all;
+		word-break: break-all;
 	}
 </style>

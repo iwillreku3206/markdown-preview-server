@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { messageStore } from '../websocket';
 	import { BYTES_FILENAME, BYTES_FRONTMATTER } from '../websocketPrefixes';
+	import IconSettings from '~icons/mdi/settings';
 
 	let title = 'No Document Loaded';
 	let fileName = '';
 
 	messageStore.subscribe(async (message) => {
-  if (!message) return
+		if (!message) return;
 		const buf = await message.arrayBuffer();
 		const bytes = new Uint8Array(buf);
 		const magicBytes = bytes.slice(0, 4).join('');
@@ -36,5 +37,7 @@
 			<div class="text-sm">{fileName}</div>
 		</div>
 	</h6>
-	<div class="flex-1 flex justify-end items-center">Right</div>
+	<div class="flex-1 flex justify-end items-center">
+		<label for="options-modal" class="btn btn-ghost text-xl"><IconSettings /></label>
+	</div>
 </div>

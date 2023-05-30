@@ -1,10 +1,12 @@
 <script lang="ts">
 	import '../app.css';
-	import { messageStore } from '../websocket';
 	import Bar from './bar.svelte';
+	import { options } from '../optionStore';
+	import Options from './options.svelte';
 </script>
 
-<main class="flex flex-col h-screen items-center bg-base-200">
+<Options />
+<main data-theme={$options.theme} class="flex flex-col h-screen items-center bg-base-200">
 	<Bar />
 	<iframe
 		class="mx-8 my-8 w-full max-w-container-small lg:max-w-container h-full"
