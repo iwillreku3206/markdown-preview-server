@@ -6,7 +6,7 @@ export default {
   theme: {
     extend: {
       maxWidth: {
-        'container-small': 'screen',
+        'container-small': '100vw',
         'container': '1024px'
       }
     },

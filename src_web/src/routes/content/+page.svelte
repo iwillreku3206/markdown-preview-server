@@ -33,7 +33,15 @@
 	});
 </script>
 
-<div>
+<main>
 	<span bind:this={styleElm} />
 	<main bind:this={contentElm} />
-</div>
+</main>
+
+<style>
+	main {
+		word-wrap: break-word;
+		overflow-wrap: break-word;
+    word-break: break-all;
+	}
+</style>

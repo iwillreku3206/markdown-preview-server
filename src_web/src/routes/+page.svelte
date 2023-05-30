@@ -7,7 +7,7 @@
 <main class="flex flex-col h-screen items-center bg-base-200">
 	<Bar />
 	<iframe
-		class="mx-8 my-8 w-full max-w-container-small sm:max-w-container h-full"
+		class="mx-8 my-8 w-full max-w-container-small lg:max-w-container h-full"
 		title="Markdown Preview Server Content"
 		src="/content"
 		sandbox="allow-scripts allow-same-origin"
@@ -15,7 +15,7 @@
 </main>
 
 <style>
-main {
-max-width: 100vw;
-}
+	main {
+		max-width: 100vw;
+	}
 </style>
