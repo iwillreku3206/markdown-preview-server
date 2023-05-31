@@ -42,7 +42,7 @@ const loadOptions = (): Options => {
   const followBottom = localStorage.getItem('markdown-preview-server__options__followBottom');
 
   return {
-    theme: theme || window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
+    theme: theme !== null ? theme as typeof availableThemes[number] : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'),
     followBottom: followBottom === 'true'
   }
 }
@@ -50,6 +50,7 @@ const loadOptions = (): Options => {
 export const options = writable<Options>(loadOptions());
 
 options.subscribe((value) => {
-  localStorage.setItem('markdown-preview-server__options__theme', value.theme);
-  localStorage.setItem('markdown-preview-server__options__followBottom', value.followBottom.toString());
+  console.log('saving settings')
+  localStorage.setItem('markdown-preview-server__options__theme', String(value.theme));
+  localStorage.setItem('markdown-preview-server__options__followBottom', String(value.followBottom.toString()));
 })

@@ -5,7 +5,7 @@
 	$: {
 		options.update((options) => {
 			options.theme = currentTheme;
-			return options;
+			return { ...options };
 		});
 	}
 </script>
