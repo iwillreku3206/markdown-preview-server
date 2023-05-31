@@ -3,6 +3,18 @@
 	import Bar from './bar.svelte';
 	import { options } from '../optionStore';
 	import Options from './options.svelte';
+	import { onMount } from 'svelte';
+
+	let iframe: HTMLIFrameElement;
+	onMount(() => {
+		options.subscribe((options) => {
+    if (!iframe || !iframe.contentWindow) return;
+			iframe.contentWindow.postMessage(
+				options.followBottom ? 'followBottom=TRUE' : 'followBottom=FALSE',
+				'*'
+			);
+		});
+	});
 </script>
 
 <Options />
@@ -13,6 +25,7 @@
 		title="Markdown Preview Server Content"
 		src="/content"
 		sandbox="allow-scripts allow-same-origin"
+		bind:this={iframe}
 	/>
 </main>
 

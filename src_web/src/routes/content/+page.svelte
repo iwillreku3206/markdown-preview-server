@@ -4,11 +4,16 @@
 	import { BYTES_CSS, BYTES_DATA } from '../../websocketPrefixes';
 	import('https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js');
 
+	function jumpto(anchor: string) {
+		window.location.href = '#' + anchor;
+	}
+
 	let content = '';
 	let css = '';
 
 	let styleElm: HTMLSpanElement;
 	let contentElm: HTMLElement;
+	let followBottom = localStorage.getItem('markdown-preview-server__options__followBottom') === 'true';
 
 	onMount(() => {
 		messageStore.subscribe(async (message) => {
@@ -23,6 +28,7 @@
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					(window as any).MathJax.typeset();
 				}
+				if (followBottom) jumpto('bottom');
 			}
 
 			if (magicBytes === BYTES_CSS) {
@@ -31,11 +37,22 @@
 			}
 		});
 	});
+
+	addEventListener('message', (event) => {
+		if (event.data === 'followBottom=TRUE') {
+			followBottom = true;
+		}
+		if (event.data === 'followBottom=FALSE') {
+			followBottom = false;
+		}
+	});
 </script>
 
 <main>
 	<span bind:this={styleElm} />
 	<main bind:this={contentElm} />
+	<!-- svelte-ignore a11y-missing-content -->
+	<a id="bottom" />
 </main>
 
 <style>

@@ -2,9 +2,21 @@
 	import { messageStore } from '../websocket';
 	import { BYTES_FILENAME, BYTES_FRONTMATTER } from '../websocketPrefixes';
 	import IconSettings from '~icons/mdi/settings';
+	import IconDownArrow from '~icons/mdi/arrow-down';
+	import { options } from '../optionStore';
 
 	let title = 'No Document Loaded';
 	let fileName = '';
+
+	let followBottom =
+		localStorage.getItem('markdown-preview-server__options__followBottom') === 'true';
+
+	$: {
+		options.update((options) => {
+			options.followBottom = followBottom;
+			return { ...options };
+		});
+	}
 
 	messageStore.subscribe(async (message) => {
 		if (!message) return;
@@ -37,7 +49,13 @@
 			<div class="text-sm">{fileName}</div>
 		</div>
 	</h6>
-	<div class="flex-1 flex justify-end items-center">
-		<label for="options-modal" class="btn btn-ghost text-xl"><IconSettings /></label>
+	<div class="flex-1 justify-end items-center">
+		<div class="flex flex-row-reverse">
+			<button
+				class={`${followBottom ? 'text-success' : 'text-base-content'} text-xl`}
+				on:click={() => (followBottom = !followBottom)}><IconDownArrow /></button
+			>
+			<label for="options-modal" class="btn btn-ghost text-xl"><IconSettings /></label>
+		</div>
 	</div>
 </div>
