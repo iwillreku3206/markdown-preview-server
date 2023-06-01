@@ -11,8 +11,8 @@ Each render of the document should ideally be lower than 16.6ms, which is the ti
 
 ## Features
 
-* **CommonMark compliance**. The server uses the [`markdown-it.rs`](https://crates.io/crates/markdown-it) library, which has full CommonMark compliance
-* **LaTeX support**. The server is able to translate LaTeX functions into MathML for render in the browser
+* **CommonMark compliance**. The server uses the [`markdown-it.rs`](https://crates.io/crates/markdown-it) library, which has full CommonMark compliance. Some additional features/blocks of the server may, however, replace some CommonMark blocks with versions that are not 100% compliant. There are plans to add a setting to disable these features
+* **LaTeX support**. The server is able to translate LaTeX functions into MathML for rendering in the browser
 * **Syntax highlighting**. The server is able to highlight code blocks using the [`syntect`](https://crates.io/crates/syntect) library
 * **Table of Contents**. The server is able to generate a table of contents for the document using the `[toc]` block
 * **Custom CSS**. The server can be configured to use a custom CSS file for styling the preview page
@@ -37,6 +37,8 @@ cargo build --release
 The final build will be in `target/release/markdown-preview-server`
 
 ## Usage
+
+`markdown-preview-server` is intended to run with an editor plugin. Currently, there is only a [Neovim plugin](https://github.com/iwillreku3206/markdown-preview-server) currently available, but there are plans to make a VSCode/Codium plugin
 
 ```
 $ markdown-preview-server --help
