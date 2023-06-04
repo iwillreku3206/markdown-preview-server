@@ -27,7 +27,8 @@ In order to build the server, run the following commands:
  # First, we build the front-end preview page
 cd src_web
 yarn
-yarn build --outDir ../assets/web_build
+yarn build 
+mv build ../assets/web_build
 
  # Then, compile the server
 cd ..
