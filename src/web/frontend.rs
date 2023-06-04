@@ -13,20 +13,26 @@ use include_dir::include_dir;
 use include_dir::Dir;
 
 use super::AppState;
+use contains::Container;
 
 static WEB_BUILD: Dir<'_> = include_dir!("assets/web_build");
+
+const SVELTE_PATHS: [&str; 2] = ["", "content"];
 
 #[debug_handler]
 pub async fn frontend(_path: Uri, State(state): State<Arc<Mutex<AppState>>>) -> impl IntoResponse {
     let pre_state = state.lock().await;
 
     let frontend_address = &pre_state.pre_state.lock().await.args.frontend_address;
-    let path = _path.to_string().trim_start_matches('/').to_string();
+    let mut path = _path.to_string().trim_start_matches('/').to_string();
+    if SVELTE_PATHS.to_vec().contains(&path.as_str()) {
+        path = "".to_string();
+    }
+
     if frontend_address.is_empty() {
         if path.is_empty() {
             return Response::builder()
                 .status(StatusCode::FOUND)
-                .header(header::LOCATION, "/index.html")
                 .body(body::boxed(Full::from(
                     WEB_BUILD.get_file("index.html").unwrap().contents(),
                 )))
