@@ -5,7 +5,7 @@
 	import IconDownArrow from '~icons/mdi/arrow-down';
 	import { options } from '../optionStore';
 
-	let title = 'No Document Loaded';
+	let title = 'Untitled';
 	let fileName = '';
 
 	let followBottom =
@@ -24,7 +24,7 @@
 		const bytes = new Uint8Array(buf);
 		const magicBytes = bytes.slice(0, 4).join('');
 		if (magicBytes === BYTES_FILENAME) {
-			title = new TextDecoder().decode(bytes.slice(4));
+			fileName = new TextDecoder().decode(bytes.slice(4));
 		}
 
 		if (magicBytes === BYTES_FRONTMATTER) {

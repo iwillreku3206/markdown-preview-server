@@ -22,3 +22,5 @@ Dec Hex    Dec Hex    Dec Hex  Dec Hex  Dec Hex  Dec Hex   Dec Hex   Dec Hex
 
 pub const BYTES_DATA: [u8; 4] = [0x44, 0x41, 0x54, 0x41];
 pub const BYTES_CSS: [u8; 4] = [0x43, 0x53, 0x53, 0x20];
+pub const BYTES_FILENAME: [u8; 4] = [0x54, 0x4C, 0x54, 0x45];
+pub const BYTES_FRONTMATTER: [u8; 4] = [0x4D, 0x44, 0x46, 0x4D];

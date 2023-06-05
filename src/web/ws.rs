@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use futures::{
     future::{ok, select},
-    lock::Mutex
+    lock::Mutex,
 };
 use futures_channel::mpsc::unbounded;
 use futures_util::{pin_mut, stream::TryStreamExt, StreamExt};
@@ -46,6 +46,16 @@ async fn accept_connection(stream: TcpStream, peers: PeerMap, pre_state: Arc<Mut
 
     tx.unbounded_send(tungstenite::Message::Binary(
         pre_state.lock().await.current_css_payload.clone(),
+    ))
+    .unwrap();
+
+    tx.unbounded_send(tungstenite::Message::Binary(
+        pre_state.lock().await.current_frontmatter_payload.clone(),
+    ))
+    .unwrap();
+
+    tx.unbounded_send(tungstenite::Message::Binary(
+        pre_state.lock().await.current_filename_payload.clone(),
     ))
     .unwrap();
 

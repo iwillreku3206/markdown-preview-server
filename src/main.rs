@@ -17,7 +17,7 @@ use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use tungstenite::Message;
-use util::constants::magic_bytes::{BYTES_CSS, BYTES_DATA};
+use util::constants::magic_bytes::{BYTES_CSS, BYTES_DATA, BYTES_FILENAME, BYTES_FRONTMATTER};
 
 pub type Tx = UnboundedSender<Message>;
 pub type PeerMap = Arc<Mutex<HashMap<SocketAddr, Tx>>>;
@@ -50,6 +50,8 @@ pub struct PreState {
     args: Args,
     current_content_payload: Vec<u8>,
     current_css_payload: Vec<u8>,
+    current_filename_payload: Vec<u8>,
+    current_frontmatter_payload: Vec<u8>,
 }
 
 impl PreState {
@@ -58,6 +60,12 @@ impl PreState {
     }
     pub fn set_css_payload(&mut self, payload: Vec<u8>) {
         self.current_css_payload = payload;
+    }
+    pub fn set_filename_payload(&mut self, payload: Vec<u8>) {
+        self.current_filename_payload = payload;
+    }
+    pub fn set_frontmatter_payload(&mut self, payload: Vec<u8>) {
+        self.current_frontmatter_payload = payload;
     }
 }
 
@@ -78,6 +86,8 @@ async fn main() {
         args: args.clone(),
         current_content_payload: BYTES_DATA.to_vec(),
         current_css_payload: css_payload,
+        current_filename_payload: BYTES_FILENAME.to_vec(),
+        current_frontmatter_payload: BYTES_FRONTMATTER.to_vec(),
     }));
 
     let sessions = PeerMap::new(Mutex::new(HashMap::new()));

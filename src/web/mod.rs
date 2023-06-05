@@ -8,6 +8,7 @@ use futures::lock::Mutex;
 use crate::{PeerMap, PreState};
 
 mod document;
+mod filename;
 mod frontend;
 mod ping;
 pub mod ws;
@@ -25,8 +26,20 @@ impl AppState {
             .await
             .set_content_payload(payload.clone())
     }
-    pub async fn set_css_payload(&mut self, payload: Vec<u8>) {
+    pub async fn set_css_payload(&mut self, payload: &Vec<u8>) {
         self.pre_state.lock().await.set_css_payload(payload.clone());
+    }
+    pub async fn set_filename_payload(&mut self, payload: &Vec<u8>) {
+        self.pre_state
+            .lock()
+            .await
+            .set_filename_payload(payload.clone());
+    }
+    pub async fn set_frontmatter_payload(&mut self, payload: &Vec<u8>) {
+        self.pre_state
+            .lock()
+            .await
+            .set_frontmatter_payload(payload.clone());
     }
 }
 
@@ -36,6 +49,7 @@ pub async fn web_start(sessions: PeerMap, pre_state: Arc<Mutex<PreState>>) {
     let app = Router::new()
         .route("/ping", get(ping::ping))
         .route("/document", post(document::document))
+        .route("/filename", post(filename::filename))
         .fallback(frontend::frontend)
         .with_state(Arc::new(Mutex::new(AppState {
             sessions,
