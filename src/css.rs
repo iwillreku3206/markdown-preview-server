@@ -25,7 +25,6 @@ fn async_watcher() -> notify::Result<(PollWatcher, Receiver<notify::Result<Event
 
     let watcher = PollWatcher::new(
         move |res| {
-            println!("test{:?}", res);
             futures::executor::block_on(async {
                 tx.send(res).await.unwrap();
             })
@@ -46,7 +45,6 @@ async fn async_watch(
     watcher.watch(path.as_ref(), RecursiveMode::NonRecursive)?;
 
     while let Some(_res) = rx.recv().await {
-        println!("changes");
         let mut payload = BYTES_CSS.to_vec();
         let mut css = open_user_css(path.clone()).clone().as_bytes().to_vec();
 
