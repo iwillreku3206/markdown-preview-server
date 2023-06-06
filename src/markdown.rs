@@ -10,7 +10,7 @@ pub fn parse_markdown(raw: &str) -> String {
     crate::markdown_extensions::backticks::add(parser);
     markdown_it::plugins::cmark::inline::emphasis::add(parser);
     markdown_it::plugins::cmark::inline::link::add(parser);
-    markdown_it::plugins::cmark::inline::image::add(parser);
+    crate::markdown_extensions::image_with_file::add(parser);
     markdown_it::plugins::cmark::inline::autolink::add(parser);
     markdown_it::plugins::cmark::inline::entity::add(parser);
 

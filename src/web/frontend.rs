@@ -13,7 +13,6 @@ use include_dir::include_dir;
 use include_dir::Dir;
 
 use super::AppState;
-use contains::Container;
 
 static WEB_BUILD: Dir<'_> = include_dir!("assets/web_build");
 

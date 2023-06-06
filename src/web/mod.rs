@@ -11,6 +11,7 @@ mod document;
 mod filename;
 mod frontend;
 mod ping;
+mod image;
 pub mod ws;
 
 #[derive(Clone)]
