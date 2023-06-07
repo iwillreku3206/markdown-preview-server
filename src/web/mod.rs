@@ -57,7 +57,7 @@ pub async fn web_start(sessions: PeerMap, pre_state: Arc<Mutex<PreState>>) {
             pre_state: pre_state.clone(),
         })));
 
-    let addr = SocketAddr::from(([127, 0, 0, 1], pre_state.lock().await.args.port));
+    let addr = SocketAddr::from(([127, 0, 0, 1], pre_state.lock().await.config.port));
 
     log::info!("Starting server on {}", addr.to_string());
     axum::Server::bind(&addr)

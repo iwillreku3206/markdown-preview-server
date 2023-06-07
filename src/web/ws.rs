@@ -13,7 +13,7 @@ use crate::{PeerMap, PreState};
 
 pub async fn ws_start(peers: PeerMap, pre_state: Arc<Mutex<PreState>>) {
     log::info!("Starting websocket server");
-    let addr = format!("127.0.0.1:{}", pre_state.lock().await.args.websocket_port);
+    let addr = format!("127.0.0.1:{}", pre_state.lock().await.config.websocket_port);
 
     // Create the event loop and TCP listener we'll accept connections on.
     let try_socket = TcpListener::bind(&addr).await;

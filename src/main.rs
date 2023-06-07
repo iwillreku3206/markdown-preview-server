@@ -8,6 +8,7 @@ pub mod patches;
 pub mod util;
 pub mod web;
 
+use crate::config::Config;
 use clap::Parser;
 use css::watch_user_css;
 use env_logger::Env;
@@ -27,7 +28,7 @@ pub type PeerMap = Arc<Mutex<HashMap<SocketAddr, Tx>>>;
 static DEFAULT_CONFIG_PATH: &str = "/etc/markdown-preview-server/config.toml";
 
 #[cfg(target_os = "windows")]
-static DEFAULT_CONFIG_PATH: &str = "%APPDATA%\\markdown-preview-server\\config.toml";
+static DEFAULT_CONFIG_PATH: &str = "C:\\Program Files\\markdown-preview-server\\config.toml";
 
 #[cfg(target_os = "macos")]
 static DEFAULT_CONFIG_PATH: &str = "/private/etc/markdown-preview-server/config.toml";
@@ -36,13 +37,18 @@ static DEFAULT_CONFIG_PATH: &str = "/private/etc/markdown-preview-server/config.
 #[command(author, version, about)]
 pub struct Args {
     /// Configuration file path
-    #[arg(long, value_name = "PATH", default_value = DEFAULT_CONFIG_PATH)]
+    #[arg(short, long  = "config-path", value_name = "PATH", default_value = DEFAULT_CONFIG_PATH)]
     pub config_path: String,
+
+    /// Outputs the default configuration into stdout
+    #[arg(long = "generate-config-file")]
+    pub generate_config_file: bool,
 }
 
 #[derive(Clone)]
 pub struct PreState {
     args: Args,
+    config: Config,
     current_content_payload: Vec<u8>,
     current_css_payload: Vec<u8>,
     current_filename_payload: Vec<u8>,
@@ -72,13 +78,24 @@ async fn main() {
 
     let args = Args::parse();
 
-    let css = css::open_user_css(args.clone().css);
+    if args.generate_config_file {
+        toml::to_string_pretty(&Config::default())
+            .unwrap()
+            .lines()
+            .for_each(|line| println!("{}", line));
+        return;
+    }
+
+    let config = Config::load(args.clone());
+
+    let css = css::open_user_css(config.clone().css_dir);
 
     let mut css_payload = BYTES_CSS.to_vec();
     css_payload.append(&mut css.clone().as_bytes().to_vec());
 
     let pre_state = Arc::new(Mutex::new(PreState {
         args: args.clone(),
+        config: config.clone(),
         current_content_payload: BYTES_DATA.to_vec(),
         current_css_payload: css_payload,
         current_filename_payload: BYTES_FILENAME.to_vec(),
@@ -94,7 +111,7 @@ async fn main() {
         )),
         tokio::spawn(crate::web::web_start(sessions.clone(), pre_state.clone())),
         tokio::spawn(watch_user_css(
-            args.clone().css,
+            config.css_dir,
             pre_state.clone(),
             sessions.clone(),
         ))

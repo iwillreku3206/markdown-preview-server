@@ -22,7 +22,7 @@ const SVELTE_PATHS: [&str; 2] = ["", "content"];
 pub async fn frontend(_path: Uri, State(state): State<Arc<Mutex<AppState>>>) -> impl IntoResponse {
     let pre_state = state.lock().await;
 
-    let frontend_address = &pre_state.pre_state.lock().await.args.frontend_address;
+    let frontend_address = &pre_state.pre_state.lock().await.config.frontend_address;
     let mut path = _path.to_string().trim_start_matches('/').to_string();
     if SVELTE_PATHS.to_vec().contains(&path.as_str()) {
         path = "".to_string();
