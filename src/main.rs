@@ -1,3 +1,4 @@
+pub mod config;
 mod css;
 pub mod frontmatter_parser;
 pub mod hooks;
@@ -22,27 +23,21 @@ use util::constants::magic_bytes::{BYTES_CSS, BYTES_DATA, BYTES_FILENAME, BYTES_
 pub type Tx = UnboundedSender<Message>;
 pub type PeerMap = Arc<Mutex<HashMap<SocketAddr, Tx>>>;
 
+#[cfg(target_os = "linux")]
+static DEFAULT_CONFIG_PATH: &str = "/etc/markdown-preview-server/config.toml";
+
+#[cfg(target_os = "windows")]
+static DEFAULT_CONFIG_PATH: &str = "%APPDATA%\\markdown-preview-server\\config.toml";
+
+#[cfg(target_os = "macos")]
+static DEFAULT_CONFIG_PATH: &str = "/private/etc/markdown-preview-server/config.toml";
+
 #[derive(Parser, Debug, Clone, Deserialize)]
 #[command(author, version, about)]
 pub struct Args {
-    /// Path to user-defined CSS file
-    #[arg(
-        long,
-        value_name = "PATH",
-        default_value = "/etc/markdown-preview-server/style.default.css"
-    )]
-    css: String,
-
-    /// Port to listen on
-    #[arg(long, short, value_name = "PORT", default_value = "8080")]
-    port: u16,
-
-    #[arg(long = "websocket-port", value_name = "PORT", default_value = "8081")]
-    websocket_port: u16,
-
-    /// (For development) Address to connect to frontend
-    #[arg(long = "frontend-address", value_name = "ADDRESS", default_value = "")]
-    frontend_address: String,
+    /// Configuration file path
+    #[arg(long, value_name = "PATH", default_value = DEFAULT_CONFIG_PATH)]
+    pub config_path: String,
 }
 
 #[derive(Clone)]
