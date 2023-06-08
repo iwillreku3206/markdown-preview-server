@@ -10,8 +10,8 @@ use crate::{PeerMap, PreState};
 mod document;
 mod filename;
 mod frontend;
-mod ping;
 mod image;
+mod ping;
 pub mod ws;
 
 #[derive(Clone)]
@@ -51,6 +51,7 @@ pub async fn web_start(sessions: PeerMap, pre_state: Arc<Mutex<PreState>>) {
         .route("/ping", get(ping::ping))
         .route("/document", post(document::document))
         .route("/filename", post(filename::filename))
+        .route("/imagedir/:image", get(image::image))
         .fallback(frontend::frontend)
         .with_state(Arc::new(Mutex::new(AppState {
             sessions,
