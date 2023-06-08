@@ -39,8 +39,8 @@ pub fn add(md: &mut MarkdownIt) {
         let final_href = match url.scheme() {
             "http" | "https" | "ftp" => href,
             "md-imagedir" => format!(
-                "/imagedir?image={}",
-                encode(&url.path().replace("/", "%2F"))
+                "/imagedir/{}",
+                encode(&url.path().trim_start_matches('/'))
             ),
             _ => match MDLinkFormatter::new().validate_link(&href) {
                 Some(_) => href,
