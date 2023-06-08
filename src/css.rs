@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -10,7 +11,12 @@ use crate::util::constants::magic_bytes::BYTES_CSS;
 use crate::{PeerMap, PreState};
 
 pub fn open_user_css(path: String) -> String {
-    std::fs::read_to_string(path.clone()).unwrap_or_else(|e| {
+    std::fs::read_to_string(
+        shellexpand::env(&path.clone())
+            .unwrap_or(Cow::from(path.clone()))
+            .to_string(),
+    )
+    .unwrap_or_else(|e| {
         log::warn!("Error opening CSS file [{}]: {}", path, e);
         "".to_string()
     })
