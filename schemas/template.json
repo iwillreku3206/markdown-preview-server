@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TemplateMetadata",
+  "type": "object",
+  "required": [
+    "display_name",
+    "print_options",
+    "required_fonts",
+    "unique_id"
+  ],
+  "properties": {
+    "display_name": {
+      "type": "string"
+    },
+    "print_options": {
+      "$ref": "#/definitions/PrintingMetadata"
+    },
+    "required_fonts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "unique_id": {
+      "type": "string"
+    }
+  },
+  "definitions": {
+    "PrintingMetadata": {
+      "type": "object",
+      "required": [
+        "page_margin_bottom_mm",
+        "page_margin_left_mm",
+        "page_margin_right_mm",
+        "page_margin_top_mm",
+        "paper_height_mm",
+        "paper_width_mm"
+      ],
+      "properties": {
+        "page_margin_bottom_mm": {
+          "type": "number",
+          "format": "double"
+        },
+        "page_margin_left_mm": {
+          "type": "number",
+          "format": "double"
+        },
+        "page_margin_right_mm": {
+          "type": "number",
+          "format": "double"
+        },
+        "page_margin_top_mm": {
+          "type": "number",
+          "format": "double"
+        },
+        "paper_height_mm": {
+          "type": "number",
+          "format": "double"
+        },
+        "paper_width_mm": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    }
+  }
+}

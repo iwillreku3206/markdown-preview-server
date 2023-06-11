@@ -5,6 +5,7 @@ pub mod hooks;
 pub mod markdown;
 pub mod markdown_extensions;
 pub mod patches;
+pub mod template;
 pub mod util;
 pub mod web;
 
@@ -14,10 +15,12 @@ use css::watch_user_css;
 use env_logger::Env;
 use futures::lock::Mutex;
 use futures_channel::mpsc::UnboundedSender;
+use schemars::schema_for;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::sync::Arc;
+use template::PreparedTemplate;
 use tungstenite::Message;
 use util::constants::magic_bytes::{BYTES_CSS, BYTES_DATA, BYTES_FILENAME, BYTES_FRONTMATTER};
 
@@ -43,6 +46,10 @@ pub struct Args {
     /// Outputs the default configuration into stdout
     #[arg(long = "generate-config-file")]
     pub generate_config_file: bool,
+
+    /// Outputs the template schema into stdout
+    #[arg(long = "generate-template-schema")]
+    pub generate_template_schema: bool,
 }
 
 #[derive(Clone)]
@@ -53,6 +60,7 @@ pub struct PreState {
     current_css_payload: Vec<u8>,
     current_filename_payload: Vec<u8>,
     current_frontmatter_payload: Vec<u8>,
+    current_template: PreparedTemplate,
 }
 
 impl PreState {
@@ -86,6 +94,14 @@ async fn main() {
         return;
     }
 
+    if args.generate_template_schema {
+        println!(
+            "{}",
+            serde_json::to_string_pretty(&schema_for!(template::TemplateMetadata)).unwrap()
+        );
+        return;
+    }
+
     let config = Config::load(args.clone());
 
     let css = css::open_user_css(config.clone().css_dir);
@@ -100,6 +116,7 @@ async fn main() {
         current_css_payload: css_payload,
         current_filename_payload: BYTES_FILENAME.to_vec(),
         current_frontmatter_payload: BYTES_FRONTMATTER.to_vec(),
+        current_template: PreparedTemplate::load("default", config.clone()).unwrap(),
     }));
 
     let sessions = PeerMap::new(Mutex::new(HashMap::new()));
