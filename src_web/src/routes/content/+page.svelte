@@ -48,7 +48,7 @@
 	});
 </script>
 
-<main>
+<main class="content-main">
 	<span bind:this={styleElm} />
 	<main bind:this={contentElm} />
 	<!-- svelte-ignore a11y-missing-content -->
