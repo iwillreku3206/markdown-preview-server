@@ -102,15 +102,12 @@ impl PreparedTemplate {
                 i += 1;
             }
 
-            variables.into_iter().for_each(|v| {
+            for v in &variables {
                 if v.trim() == "css" {
                     body_template_str = body_template_str.replace(&format!("{{{{{v}}}}}"), &css);
                 }
-
-                if !variables.contains(&v) {
-                    all_variables.push(v);
-                }
-            });
+                    all_variables.push(v.to_string());
+            }
         }
 
         {
@@ -154,7 +151,7 @@ impl PreparedTemplate {
                 i += 1;
             }
 
-            variables.into_iter().for_each(|v| {
+            for v in &variables {
                 if v.trim() == "css" {
                     document_template_str =
                         document_template_str.replace(&format!("{{{{{v}}}}}"), &css);
@@ -164,10 +161,8 @@ impl PreparedTemplate {
                     document_template_str =
                         document_template_str.replace(&format!("{{{{{v}}}}}"), &body_template_str);
                 }
-                if !variables.contains(&v) {
-                    all_variables.push(v);
-                }
-            });
+                    all_variables.push(v.to_string());
+            }
         }
 
         Ok(PreparedTemplate {
