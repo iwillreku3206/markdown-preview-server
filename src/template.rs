@@ -41,6 +41,7 @@ pub struct PreparedTemplate {
     metadata: TemplateMetadata,
     document_template: String,
     preview_template: String,
+    variables: Vec<String>,
 }
 
 impl PreparedTemplate {
@@ -58,6 +59,7 @@ impl PreparedTemplate {
         let mut body_template_str =
             fs::read_to_string(format!("{}/template.body.html", template_path))?;
         let css = fs::read_to_string(format!("{}/template.css", template_path))?;
+        let mut all_variables: Vec<String> = Vec::new();
 
         {
             let mut open_brace = false;
@@ -103,6 +105,10 @@ impl PreparedTemplate {
             variables.into_iter().for_each(|v| {
                 if v.trim() == "css" {
                     body_template_str = body_template_str.replace(&format!("{{{{{v}}}}}"), &css);
+                }
+
+                if !variables.contains(&v) {
+                    all_variables.push(v);
                 }
             });
         }
@@ -158,6 +164,9 @@ impl PreparedTemplate {
                     document_template_str =
                         document_template_str.replace(&format!("{{{{{v}}}}}"), &body_template_str);
                 }
+                if !variables.contains(&v) {
+                    all_variables.push(v);
+                }
             });
         }
 
@@ -165,60 +174,27 @@ impl PreparedTemplate {
             metadata: template_metadata,
             document_template: document_template_str,
             preview_template: body_template_str,
+            variables: all_variables,
         })
     }
 
     pub fn get_preview(&self, content: &str, frontmatter: &HashMap<String, String>) -> String {
         let mut preview = self.preview_template.clone();
-        {
-            let mut open_brace = false;
-            let mut current_variable = String::new();
-            let mut variables: Vec<String> = Vec::new();
 
-            let mut i = 0;
-
-            while i < preview.len() {
-                if preview.chars().nth(i).unwrap() == '{'
-                    && preview.chars().nth(i + 1).unwrap() == '{'
-                    && open_brace == false
-                {
-                    open_brace = true;
-                    i += 1;
-                    continue;
-                }
-
-                if preview.chars().nth(i).unwrap() == '}'
-                    && preview.chars().nth(i + 1).unwrap() == '}'
-                    && open_brace == true
-                {
-                    open_brace = false;
-                    variables.push(current_variable.clone());
-                    current_variable.clear();
-                    i += 1;
-                    continue;
-                }
-
-                if open_brace == true && preview.chars().nth(i).unwrap() != '{' {
-                    current_variable.push(preview.chars().nth(i).unwrap());
-                }
-
-                i += 1;
+        for v in &self.variables {
+            if v.trim() == "body" {
+                preview = preview.replace(&format!("{{{{{v}}}}}"), &content);
             }
 
-            variables.into_iter().for_each(|v| {
-                if v.trim() == "body" {
-                    preview = preview.replace(&format!("{{{{{v}}}}}"), &content);
-                }
-
-                if v.trim().starts_with("fm.") {
-                    let fm_key = v.trim().replace("fm.", "");
-                    preview = preview.replace(
-                        &format!("{{{{{v}}}}}"),
-                        &frontmatter.get(&fm_key).unwrap_or(&"undefined".to_string()),
-                    );
-                }
-            });
+            if v.trim().starts_with("fm.") {
+                let fm_key = v.trim().replace("fm.", "");
+                preview = preview.replace(
+                    &format!("{{{{{v}}}}}"),
+                    &frontmatter.get(&fm_key).unwrap_or(&"undefined".to_string()),
+                );
+            }
         }
+
         preview
     }
 }
