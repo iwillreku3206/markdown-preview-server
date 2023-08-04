@@ -25,7 +25,7 @@ static DEFAULT_IMAGE_DIR: &str = "$HOME/.markdown-preview-server/images";
 
 static DEFAULT_TEMPLATE: &str = "default";
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
     pub css_dir: String,
     pub image_dir_enabled: bool,
