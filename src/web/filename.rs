@@ -32,7 +32,7 @@ pub async fn filename(
 
     let _ = unlocked_state.set_filename_payload(&payload).await;
 
-    let sessions = &unlocked_state.sessions.lock().await;
+    let sessions = &unlocked_state.sessions.webview_map.lock().await;
     let broadcast_recipients = sessions.iter().map(|(_, ws_sink)| ws_sink);
     for recp in broadcast_recipients {
         recp.unbounded_send(Message::Binary(payload.clone()))

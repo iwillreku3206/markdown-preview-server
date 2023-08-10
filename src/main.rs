@@ -27,6 +27,12 @@ use util::constants::magic_bytes::{BYTES_CSS, BYTES_DATA, BYTES_FILENAME, BYTES_
 pub type Tx = UnboundedSender<Message>;
 pub type PeerMap = Arc<Mutex<HashMap<SocketAddr, Tx>>>;
 
+#[derive(Debug, Clone)]
+pub struct PeerMaps {
+    webview_map: PeerMap,
+    editor_map: PeerMap,
+}
+
 #[cfg(target_os = "linux")]
 static DEFAULT_CONFIG_PATH: &str = "/etc/markdown-preview-server/config.toml";
 
@@ -119,7 +125,10 @@ async fn main() {
         current_template: PreparedTemplate::load("default", config.clone()).unwrap(),
     }));
 
-    let sessions = PeerMap::new(Mutex::new(HashMap::new()));
+    let sessions = PeerMaps {
+        webview_map: PeerMap::new(Mutex::new(HashMap::new())),
+        editor_map: PeerMap::new(Mutex::new(HashMap::new())),
+    };
 
     let _ = tokio::join!(
         tokio::spawn(crate::web::ws::ws_start(

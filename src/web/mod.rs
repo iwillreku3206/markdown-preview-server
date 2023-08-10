@@ -5,7 +5,7 @@ use axum::routing::{get, post};
 use axum::Router;
 use futures::lock::Mutex;
 
-use crate::{PeerMap, PreState};
+use crate::{PeerMaps, PreState};
 
 mod document;
 mod filename;
@@ -16,7 +16,7 @@ pub mod ws;
 
 #[derive(Clone)]
 pub struct AppState {
-    sessions: PeerMap,
+    sessions: PeerMaps,
     pre_state: Arc<Mutex<PreState>>,
 }
 
@@ -46,7 +46,7 @@ impl AppState {
 
 unsafe impl Send for AppState {}
 
-pub async fn web_start(sessions: PeerMap, pre_state: Arc<Mutex<PreState>>) {
+pub async fn web_start(sessions: PeerMaps, pre_state: Arc<Mutex<PreState>>) {
     let app = Router::new()
         .route("/ping", get(ping::ping))
         .route("/document", post(document::document))

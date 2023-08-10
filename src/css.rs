@@ -8,7 +8,7 @@ use tokio::sync::mpsc::{channel, Receiver};
 use tungstenite::Message;
 
 use crate::util::constants::magic_bytes::BYTES_CSS;
-use crate::{PeerMap, PreState};
+use crate::{PeerMaps, PreState};
 
 pub fn open_user_css(path: String) -> String {
     std::fs::read_to_string(
@@ -22,7 +22,7 @@ pub fn open_user_css(path: String) -> String {
     })
 }
 
-pub async fn watch_user_css(path: String, state: Arc<Mutex<PreState>>, sessions: PeerMap) {
+pub async fn watch_user_css(path: String, state: Arc<Mutex<PreState>>, sessions: PeerMaps) {
     tokio::spawn(async_watch(path, state, sessions));
 }
 
@@ -44,7 +44,7 @@ fn async_watcher() -> notify::Result<(PollWatcher, Receiver<notify::Result<Event
 async fn async_watch(
     path: String,
     state: Arc<Mutex<PreState>>,
-    sessions: PeerMap,
+    sessions: PeerMaps,
 ) -> notify::Result<()> {
     let (mut watcher, mut rx) = async_watcher()?;
 
@@ -57,7 +57,7 @@ async fn async_watch(
         payload.append(&mut css);
         state.lock().await.set_css_payload(payload.clone());
 
-        let sessions = &sessions.lock().await;
+        let sessions = &sessions.webview_map.lock().await;
         let broadcast_recipients = sessions.iter().map(|(_, ws_sink)| ws_sink);
         for recp in broadcast_recipients {
             recp.unbounded_send(Message::Binary(payload.clone()))
