@@ -31,6 +31,14 @@ async fn accept_connection(stream: TcpStream, peers: PeerMap, pre_state: Arc<Mut
 
     log::info!("New WebSocket connection: {}", addr);
 
+    let mut buf: [u8; 8192] = [0; 8192];
+    let _ = &stream.peek(&mut buf).await.unwrap_or_default();
+    let mut headers = [httparse::EMPTY_HEADER; 0];
+
+    let mut req = httparse::Request::new(&mut headers);
+    let _ = req.parse(&buf).unwrap_or(httparse::Status::Complete(0));
+    // println!("Request: {}", req.path.unwrap());
+
     let ws_stream = tokio_tungstenite::accept_async(stream)
         .await
         .expect("Error during the websocket handshake occurred");

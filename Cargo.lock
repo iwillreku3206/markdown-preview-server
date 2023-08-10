@@ -1398,6 +1398,7 @@ dependencies = [
  "futures",
  "futures-channel",
  "futures-util",
+ "httparse",
  "include_dir",
  "latex2mathml",
  "log",
