@@ -42,6 +42,7 @@
 //!
 //! If you define two structures with the same marker, only the first one will work.
 //!
+//! FIXES A PANIC THAT OCCURS WHEN USING BACKTICKS IN SQUARE BRACKETS
 use markdown_it::parser::extset::{InlineRootExt, MarkdownItExt};
 use markdown_it::parser::inline::{InlineRule, InlineState, Text};
 use markdown_it::{MarkdownIt, Node};

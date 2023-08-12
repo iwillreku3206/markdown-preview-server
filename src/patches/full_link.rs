@@ -13,6 +13,8 @@
 //!  - `md` - parser instance
 //!  - `f` - function that should return your custom [Node] given href and title
 //!
+//! WARNING: REMOVES THE LINK CLEANER IN ORDER TO ADD CUSTOM LINKS. ENSURE LINKS ARE PROPERLY
+//! SANITIZED TO PREVENT XSS
 use std::collections::HashMap;
 
 use markdown_it::common::utils::unescape_all;
