@@ -8,6 +8,7 @@ use tokio::sync::mpsc::{channel, Receiver};
 use tungstenite::Message;
 
 use crate::util::constants::magic_bytes::BYTES_CSS;
+use crate::web::ws::send_to_all;
 use crate::{PeerMaps, PreState};
 
 pub fn open_user_css(path: String) -> String {
@@ -57,12 +58,7 @@ async fn async_watch(
         payload.append(&mut css);
         state.lock().await.set_css_payload(payload.clone());
 
-        let sessions = &sessions.webview_map.lock().await;
-        let broadcast_recipients = sessions.iter().map(|(_, ws_sink)| ws_sink);
-        for recp in broadcast_recipients {
-            recp.unbounded_send(Message::Binary(payload.clone()))
-                .unwrap()
-        }
+        let _ = send_to_all(payload, sessions.webview_map.clone());
     }
 
     Ok(())

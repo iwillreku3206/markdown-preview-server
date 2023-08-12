@@ -9,7 +9,7 @@ use crate::{
     util::constants::magic_bytes::{BYTES_DATA, BYTES_FRONTMATTER},
 };
 
-use super::AppState;
+use super::{ws::send_to_all, AppState};
 
 #[derive(serde::Deserialize)]
 pub struct DocumentRequest {
@@ -50,18 +50,19 @@ pub async fn document(
     let mut frontmatter_payload: Vec<u8> = Vec::from(BYTES_FRONTMATTER);
     frontmatter_payload.append(&mut frontmatter_json.clone().as_bytes().to_vec());
 
-    let __ = unlocked_state
+    let _ = unlocked_state
         .set_frontmatter_payload(&frontmatter_payload)
         .await;
 
-    let sessions = &unlocked_state.sessions.webview_map.lock().await;
-    let broadcast_recipients = sessions.iter().map(|(_, ws_sink)| ws_sink);
-    for recp in broadcast_recipients {
-        recp.unbounded_send(Message::Binary(payload.clone()))
-            .unwrap();
-        recp.unbounded_send(Message::Binary(frontmatter_payload.clone()))
-            .unwrap();
-    }
+    let _ = send_to_all(
+        frontmatter_payload,
+        unlocked_state.sessions.webview_map.clone(),
+    ).await;
+
+    let _ = send_to_all(
+        payload,
+        unlocked_state.sessions.webview_map.clone(),
+    ).await;
 
     let result = DocumentResponse {
         status: "ok".to_string(),

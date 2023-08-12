@@ -9,6 +9,7 @@ use futures_util::{pin_mut, stream::TryStreamExt, StreamExt};
 
 use tokio::net::{TcpListener, TcpStream};
 use tokio_tungstenite::WebSocketStream;
+use tungstenite::Message;
 
 use crate::{PeerMap, PeerMaps, PreState};
 
@@ -93,6 +94,15 @@ async fn handle_webview_ws(
     peers.lock().await.remove(&addr);
 }
 
+pub async fn send_to_all(message: Vec<u8>, peers: PeerMap) {
+    let sessions = &peers.lock().await;
+    let broadcast_recipients = sessions.iter().map(|(_, ws_sink)| ws_sink);
+    for recp in broadcast_recipients {
+        recp.unbounded_send(Message::Binary(message.clone()))
+            .unwrap();
+    }
+}
+
 async fn handle_webview_editor(
     addr: SocketAddr,
     stream: WebSocketStream<TcpStream>,
@@ -110,7 +120,10 @@ async fn handle_webview_editor(
 
     peers.lock().await.insert(addr, tx);
 
-    let broadcast_incoming = read.try_for_each(|_msg| ok(()));
+    let broadcast_incoming = read.try_for_each(|msg| {
+        tokio::spawn(send_to_all(msg.into_data(), peers.clone()));
+        ok(())
+    });
     let receive_from_others = rx.map(Ok).forward(write);
 
     pin_mut!(broadcast_incoming, receive_from_others);
