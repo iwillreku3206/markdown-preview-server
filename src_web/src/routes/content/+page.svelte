@@ -13,7 +13,8 @@
 
 	let styleElm: HTMLSpanElement;
 	let contentElm: HTMLElement;
-	let followBottom = localStorage.getItem('markdown-preview-server__options__followBottom') === 'true';
+	let followBottom =
+		localStorage.getItem('markdown-preview-server__options__followBottom') === 'true';
 
 	onMount(() => {
 		messageStore.subscribe(async (message) => {
@@ -23,7 +24,10 @@
 			const magicBytes = bytes.slice(0, 4).join('');
 			if (magicBytes === BYTES_DATA) {
 				content = new TextDecoder().decode(bytes.slice(4));
+        if (contentElm) {
+
 				contentElm.innerHTML = content;
+        }
 				if (navigator.userAgent.includes('Chrome') || !window.MathMLElement) {
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					(window as any).MathJax.typeset();
@@ -46,7 +50,20 @@
 			followBottom = false;
 		}
 	});
+
+	function handleClick(e: MouseEvent) {
+		if (e.target && e.target instanceof HTMLAnchorElement) {
+			const path = e.target.getAttribute('data-path');
+			if (path) {
+				e.preventDefault();
+				console.log(path);
+				return;
+			}
+		}
+	}
 </script>
+
+<svelte:window on:click={handleClick} />
 
 <main class="content-main">
 	<span bind:this={styleElm} />
