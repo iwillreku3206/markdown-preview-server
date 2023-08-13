@@ -13,8 +13,8 @@ use tungstenite::Message;
 
 use crate::{PeerMap, PeerMaps, PreState};
 
-pub mod webview;
 pub mod editor;
+pub mod webview;
 
 pub async fn ws_start(peers: PeerMaps, pre_state: Arc<Mutex<PreState>>) {
     log::info!("Starting websocket server");
@@ -89,7 +89,8 @@ async fn handle_webview_ws(
 
     peers.lock().await.insert(addr, tx);
 
-    let broadcast_incoming = read.try_for_each(|msg| webview::handle_incoming(msg, &peer_maps));
+    let broadcast_incoming =
+        read.try_for_each(|msg| webview::handle_incoming(msg, &peer_maps, pre_state.clone()));
     let receive_from_others = rx.map(Ok).forward(write);
 
     pin_mut!(broadcast_incoming, receive_from_others);
