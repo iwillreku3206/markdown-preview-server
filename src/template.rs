@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::config::Config;
 
-#[derive(JsonSchema, Clone, Copy, Deserialize, Serialize)]
+#[derive(JsonSchema, Clone, Copy, Deserialize, Serialize, Debug)]
 pub struct PrintingMetadata {
     paper_width_mm: f64,
     paper_height_mm: f64,
@@ -28,7 +28,7 @@ impl Default for PrintingMetadata {
     }
 }
 
-#[derive(JsonSchema, Serialize, Deserialize, Clone)]
+#[derive(JsonSchema, Serialize, Deserialize, Debug, Clone)]
 pub struct TemplateMetadata {
     unique_id: String,
     display_name: String,
@@ -36,12 +36,34 @@ pub struct TemplateMetadata {
     required_fonts: Vec<String>,
 }
 
-#[derive(Clone)]
+impl Default for TemplateMetadata {
+    fn default() -> Self {
+        TemplateMetadata {
+            unique_id: "default".to_string(),
+            display_name: "default".to_string(),
+            print_options: PrintingMetadata::default(),
+            required_fonts: Vec::new(),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct PreparedTemplate {
     metadata: TemplateMetadata,
     document_template: String,
     preview_template: String,
     variables: Vec<String>,
+}
+
+impl Default for PreparedTemplate {
+    fn default() -> Self {
+        PreparedTemplate {
+            metadata: TemplateMetadata::default(),
+            document_template: "{{body}}".to_string(),
+            preview_template: "{{body}}".to_string(),
+            variables: vec!["body".to_string()],
+        }
+    }
 }
 
 impl PreparedTemplate {
@@ -106,7 +128,7 @@ impl PreparedTemplate {
                 if v.trim() == "css" {
                     body_template_str = body_template_str.replace(&format!("{{{{{v}}}}}"), &css);
                 }
-                    all_variables.push(v.to_string());
+                all_variables.push(v.to_string());
             }
         }
 
@@ -161,7 +183,7 @@ impl PreparedTemplate {
                     document_template_str =
                         document_template_str.replace(&format!("{{{{{v}}}}}"), &body_template_str);
                 }
-                    all_variables.push(v.to_string());
+                all_variables.push(v.to_string());
             }
         }
 

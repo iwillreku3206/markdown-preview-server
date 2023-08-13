@@ -27,16 +27,33 @@ static DEFAULT_TEMPLATE: &str = "default";
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
+    #[serde(default)]
     pub css_dir: String,
+
+    #[serde(default)]
     pub image_dir_enabled: bool,
+    #[serde(default)]
     pub image_dir: String,
+
+    #[serde(default)]
     pub template_dir: String,
+    #[serde(default)]
     pub template: String,
+
+    #[serde(default)]
     pub feature_set: String,
+
+    #[serde(default)]
     pub log_level: String,
+
+    #[serde(default)]
     pub host: String,
+    #[serde(default)]
     pub port: u16,
+    #[serde(default)]
     pub websocket_port: u16,
+
+    #[serde(default)]
     pub frontend_address: String,
 }
 
@@ -44,7 +61,7 @@ impl Default for Config {
     fn default() -> Self {
         Config {
             css_dir: DEFAULT_CSS_DIR.to_string(),
-            image_dir_enabled: true,
+            image_dir_enabled: false,
             image_dir: DEFAULT_IMAGE_DIR.to_string(),
             template_dir: DEFAULT_TEMPLATE_DIR.to_string(),
             template: DEFAULT_TEMPLATE.to_string(),
