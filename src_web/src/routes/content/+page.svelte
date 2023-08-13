@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { messageStore } from '../../websocket';
+	import { messageStore, send } from '../../websocket';
 	import { BYTES_CSS, BYTES_DATA } from '../../websocketPrefixes';
 	import('https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js');
 
@@ -24,10 +24,9 @@
 			const magicBytes = bytes.slice(0, 4).join('');
 			if (magicBytes === BYTES_DATA) {
 				content = new TextDecoder().decode(bytes.slice(4));
-        if (contentElm) {
-
-				contentElm.innerHTML = content;
-        }
+				if (contentElm) {
+					contentElm.innerHTML = content;
+				}
 				if (navigator.userAgent.includes('Chrome') || !window.MathMLElement) {
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					(window as any).MathJax.typeset();
@@ -56,7 +55,17 @@
 			const path = e.target.getAttribute('data-path');
 			if (path) {
 				e.preventDefault();
-				console.log(path);
+				const pathBytes = new TextEncoder().encode(path);
+				const buf = new Uint8Array(4 + pathBytes.length);
+
+				buf[0] = 0x00;
+				buf[1] = 0x00;
+				buf[2] = 0x01; // 0x01 = USER_INPUT
+				buf[3] = 0x00; // 0x00 = GOTO_FILE
+
+        buf.set(pathBytes, 4);
+
+				send(buf);
 				return;
 			}
 		}

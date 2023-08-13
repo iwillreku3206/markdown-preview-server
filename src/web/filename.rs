@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use axum::{extract::State, Json};
 use futures::lock::Mutex;
-use tungstenite::Message;
 
 use crate::util::constants::magic_bytes::BYTES_FILENAME;
 

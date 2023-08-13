@@ -5,7 +5,6 @@ use std::time::Duration;
 use futures::lock::Mutex;
 use notify::{Config, Event, PollWatcher, RecursiveMode, Watcher};
 use tokio::sync::mpsc::{channel, Receiver};
-use tungstenite::Message;
 
 use crate::util::constants::magic_bytes::BYTES_CSS;
 use crate::web::ws::send_to_all;

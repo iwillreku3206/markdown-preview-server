@@ -13,6 +13,9 @@ use tungstenite::Message;
 
 use crate::{PeerMap, PeerMaps, PreState};
 
+pub mod webview;
+pub mod editor;
+
 pub async fn ws_start(peers: PeerMaps, pre_state: Arc<Mutex<PreState>>) {
     log::info!("Starting websocket server");
     let addr = format!("127.0.0.1:{}", pre_state.lock().await.config.websocket_port);
@@ -45,10 +48,10 @@ async fn accept_connection(stream: TcpStream, peers: PeerMaps, pre_state: Arc<Mu
         .expect("Error during the websocket handshake occurred");
 
     match req.path.unwrap_or_default() {
-        "/" => handle_webview_ws(addr, ws_stream, peers.webview_map.clone(), pre_state).await,
-        "/editor" => {
-            handle_webview_editor(addr, ws_stream, peers.editor_map.clone(), pre_state).await
+        "/" => {
+            handle_webview_ws(addr, ws_stream, peers.webview_map.clone(), peers, pre_state).await
         }
+        "/editor" => handle_editor_ws(addr, ws_stream, peers.editor_map.clone(), pre_state).await,
         _ => {}
     }
 }
@@ -57,6 +60,7 @@ async fn handle_webview_ws(
     addr: SocketAddr,
     stream: WebSocketStream<TcpStream>,
     peers: PeerMap,
+    peer_maps: PeerMaps,
     pre_state: Arc<Mutex<PreState>>,
 ) {
     let (write, read) = stream.split();
@@ -85,7 +89,7 @@ async fn handle_webview_ws(
 
     peers.lock().await.insert(addr, tx);
 
-    let broadcast_incoming = read.try_for_each(|_msg| ok(()));
+    let broadcast_incoming = read.try_for_each(|msg| webview::handle_incoming(msg, &peer_maps));
     let receive_from_others = rx.map(Ok).forward(write);
 
     pin_mut!(broadcast_incoming, receive_from_others);
@@ -103,7 +107,7 @@ pub async fn send_to_all(message: Vec<u8>, peers: PeerMap) {
     }
 }
 
-async fn handle_webview_editor(
+async fn handle_editor_ws(
     addr: SocketAddr,
     stream: WebSocketStream<TcpStream>,
     peers: PeerMap,
