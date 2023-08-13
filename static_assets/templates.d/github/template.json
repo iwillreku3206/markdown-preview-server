@@ -1,0 +1,14 @@
+{
+  "$schema": "../../../schemas/template.json",
+  "unique_id": "github",
+  "display_name": "github",
+  "print_options": {
+    "paper_width_mm": 210,
+    "paper_height_mm": 297,
+    "page_margin_top_mm": 25.4,
+    "page_margin_bottom_mm": 25.4,
+    "page_margin_left_mm": 25.4,
+    "page_margin_right_mm": 25.4
+  },
+  "required_fonts": []
+}

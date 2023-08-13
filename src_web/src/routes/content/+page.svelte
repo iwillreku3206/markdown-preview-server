@@ -3,6 +3,7 @@
 	import { messageStore, send } from '../../websocket';
 	import { BYTES_CSS, BYTES_DATA } from '../../websocketPrefixes';
 	import('https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js');
+	import './page.css';
 
 	function jumpto(anchor: string) {
 		window.location.href = '#' + anchor;
@@ -63,7 +64,7 @@
 				buf[2] = 0x01; // 0x01 = USER_INPUT
 				buf[3] = 0x00; // 0x00 = GOTO_FILE
 
-        buf.set(pathBytes, 4);
+				buf.set(pathBytes, 4);
 
 				send(buf);
 				return;
@@ -87,5 +88,6 @@
 		word-wrap: break-word;
 		overflow-wrap: break-word;
 		word-break: break-all;
+    min-height: 100vh;
 	}
 </style>
