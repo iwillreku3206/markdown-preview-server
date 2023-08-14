@@ -31,6 +31,7 @@ pub fn parse_markdown(raw: &str) -> String {
     crate::markdown_extensions::code_block::add(parser);
     crate::markdown_extensions::equation_graph::add(parser);
     crate::markdown_extensions::custom_class::add(parser);
+    crate::markdown_extensions::toc::add(parser);
 
     file.document_content = crate::hooks::toc::toc(file.document_content);
 
