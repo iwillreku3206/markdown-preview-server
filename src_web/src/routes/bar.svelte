@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { messageStore } from '../websocket';
+	import { messageStore, resetWebSocket } from '../websocket';
 	import { BYTES_FILENAME, BYTES_FRONTMATTER } from '../websocketPrefixes';
 	import IconSettings from '~icons/mdi/settings';
 	import IconDownArrow from '~icons/mdi/arrow-down';
+	import IconReset from '~icons/mdi/refresh';
 	import { options } from '../optionStore';
 
 	let title = 'Untitled';
@@ -51,11 +52,14 @@
 	</h6>
 	<div class="flex-1 justify-end items-center">
 		<div class="flex flex-row-reverse">
+			<label for="options-modal" class="btn btn-ghost text-xl"><IconSettings /></label>
 			<button
-				class={`${followBottom ? 'text-success' : 'text-base-content'} text-xl`}
+				class={`${followBottom ? 'text-success' : 'text-base-content'} btn btn-ghost text-xl`}
 				on:click={() => (followBottom = !followBottom)}><IconDownArrow /></button
 			>
-			<label for="options-modal" class="btn btn-ghost text-xl"><IconSettings /></label>
+			<button class="btn btn-ghost text-xl" on:click={resetWebSocket}>
+				<IconReset />
+			</button>
 		</div>
 	</div>
 </div>

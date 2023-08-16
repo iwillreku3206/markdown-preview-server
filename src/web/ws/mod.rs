@@ -34,8 +34,6 @@ async fn accept_connection(stream: TcpStream, peers: PeerMaps, pre_state: Arc<Mu
         .peer_addr()
         .expect("connected streams should have a peer address");
 
-    log::info!("New WebSocket connection: {}", addr);
-
     let mut buf: [u8; 8192] = [0; 8192];
     let _ = &stream.peek(&mut buf).await.unwrap_or_default();
     let mut headers = [httparse::EMPTY_HEADER; 0];
@@ -47,7 +45,11 @@ async fn accept_connection(stream: TcpStream, peers: PeerMaps, pre_state: Arc<Mu
         .await
         .expect("Error during the websocket handshake occurred");
 
-    match req.path.unwrap_or_default() {
+    let path = req.path.unwrap_or_default();
+
+    log::info!("New WebSocket connection ({path}): {addr}. There were {} webview and {} editor connections.", peers.webview_map.lock().await.len(), peers.editor_map.lock().await.len());
+
+    match path {
         "/" => {
             handle_webview_ws(addr, ws_stream, peers.webview_map.clone(), peers, pre_state).await
         }
