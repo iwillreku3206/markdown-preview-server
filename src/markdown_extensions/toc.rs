@@ -1,5 +1,7 @@
 // Replaces `[toc]` with special characters to mark a TOC block for replacement
 
+use std::char::REPLACEMENT_CHARACTER;
+
 use markdown_it::parser::inline::{InlineRule, InlineState};
 use markdown_it::{MarkdownIt, Node, NodeValue, Renderer};
 
@@ -8,7 +10,10 @@ pub struct InlineTOC;
 impl NodeValue for InlineTOC {
     fn render(&self, _node: &Node, fmt: &mut dyn Renderer) {
         // replacement character
-        fmt.text_raw("�toc�");
+        fmt.text_raw(&format!(
+            "{}toc{}",
+            REPLACEMENT_CHARACTER, REPLACEMENT_CHARACTER
+        ));
         fmt.cr();
     }
 }

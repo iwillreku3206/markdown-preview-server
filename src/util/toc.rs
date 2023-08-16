@@ -14,6 +14,10 @@ pub fn generate_toc_html(markdown: String) -> String {
             continue;
         }
 
+        println!("{}", line);
+        println!("{}", toc);
+        println!("{:?}", tags);
+
         if line.starts_with('#') && tags.len() == 0 {
             let depth = line.chars().take_while(|c| *c == '#').count();
             let heading = line[depth..].trim();

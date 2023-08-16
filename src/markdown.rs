@@ -33,8 +33,8 @@ pub fn parse_markdown(raw: &str) -> String {
     crate::markdown_extensions::custom_class::add(parser);
     crate::markdown_extensions::toc::add(parser);
 
-    file.document_content = crate::hooks::toc::toc(file.document_content);
-
     let ast = parser.parse(&file.document_content);
-    ast.render()
+    let render = ast.render();
+
+    crate::hooks::toc::toc(render, file.document_content)
 }
