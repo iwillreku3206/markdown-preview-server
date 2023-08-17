@@ -22,4 +22,3 @@ jobs:
 					aur: true
 					update_archlinux_keyring: true
 					pkgver: ${{ steps.previoustag.outputs.tag }}
-
