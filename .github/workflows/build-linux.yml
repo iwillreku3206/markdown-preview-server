@@ -1,0 +1,25 @@
+name: Build on Linux
+
+on:
+	push:
+		branches: main
+
+jobs:
+	build:
+		runs-on: ubuntu-latest
+		steps:
+			- name: Checkout
+				uses: actions/checkout@v2
+
+			# get package version
+			- name: 'Get Previous tag'
+				id: previoustag
+				uses: "WyriHaximus/github-action-get-previous-tag@v1"
+
+			- name: Build (Arch Linux x86_64)
+				uses: hapakaien/archlinux-package-action@v2
+				with:
+					aur: true
+					update_archlinux_keyring: true
+					pkgver: ${{ steps.previoustag.outputs.tag }}
+
