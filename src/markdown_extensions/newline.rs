@@ -8,11 +8,11 @@ use markdown_it::{MarkdownIt, Node, NodeValue, Renderer};
 pub struct InlineNewline;
 // This defines how your custom node should be rendered.
 impl NodeValue for InlineNewline {
-    fn render(&self, _node: &Node, fmt: &mut dyn Renderer) {
+    fn render(&self, node: &Node, fmt: &mut dyn Renderer) {
         // `node.attrs` are custom attributes added by other plugins
         // (for example, source mapping information)
 
-        fmt.self_close("br", &[]);
+        fmt.self_close("br", &node.attrs);
         fmt.cr();
     }
 }

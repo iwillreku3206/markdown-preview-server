@@ -8,12 +8,13 @@ use markdown_it::{MarkdownIt, Node, NodeValue, Renderer};
 #[derive(Debug)]
 pub struct InlineTOC;
 impl NodeValue for InlineTOC {
-    fn render(&self, _node: &Node, fmt: &mut dyn Renderer) {
-        // replacement character
+    fn render(&self, node: &Node, fmt: &mut dyn Renderer) {
+        fmt.open("p", &node.attrs);
         fmt.text_raw(&format!(
             "{}toc{}",
             REPLACEMENT_CHARACTER, REPLACEMENT_CHARACTER
         ));
+        fmt.close("p");
         fmt.cr();
     }
 }

@@ -14,9 +14,11 @@ pub struct BlockCustomClass {
 }
 
 impl NodeValue for BlockCustomClass {
-    fn render(&self, _node: &Node, fmt: &mut dyn Renderer) {
+    fn render(&self, node: &Node, fmt: &mut dyn Renderer) {
+        let mut attrs = node.attrs.clone();
+        attrs.push(("class", self.class.clone()));
         if matches!(&self.block_type, CustomClassBlockType::Open) {
-            fmt.open("div", &[("class", self.class.clone())]);
+            fmt.open("div", &attrs);
         } else {
             fmt.close("div");
         }

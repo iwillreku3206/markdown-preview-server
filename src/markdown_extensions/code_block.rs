@@ -15,8 +15,8 @@ pub struct SyntectSnippet {
 }
 
 impl NodeValue for SyntectSnippet {
-    fn render(&self, _: &Node, fmt: &mut dyn Renderer) {
-        fmt.open("pre", &[]);
+    fn render(&self, node: &Node, fmt: &mut dyn Renderer) {
+        fmt.open("pre", &node.attrs);
         fmt.open("code", &[]);
         fmt.text_raw(&self.html);
         fmt.close("code");
