@@ -31,5 +31,7 @@ create_target_dir_linux:
 
 build_linux_x86_64_tar: build_linux_x86_64 create_target_dir_linux
 	@echo "Creating tarball"
-	@tar -C pkg_target -czf $(_MDPS_PKG_NAME)-$(_MDPS_PKG_VERSION)-$(_MDPS_BUILD_COMMIT).tar.gz pkg_target/*
+	tar -C pkg_target -czf $(_MDPS_PKG_NAME)-$(_MDPS_PKG_VERSION)-$(_MDPS_BUILD_COMMIT).tar.gz pkg_target/*
+	@mkdir -p build
+	@mv $(_MDPS_PKG_NAME)-$(_MDPS_PKG_VERSION)-$(_MDPS_BUILD_COMMIT).tar.gz build
 	rm -rf pkg_target
