@@ -1,24 +1,45 @@
 name: Build on Linux
 
 on:
-	push:
-		branches: main
+  push:
+    branches: main
 
 jobs:
-	build:
-		runs-on: ubuntu-latest
-		steps:
-			- name: Checkout
-				uses: actions/checkout@v2
+  build-web:
+    name: Build Webview
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: "Setup Node"
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - run: |
+          ls
+          corepack enable
+          cd src_web && yarn
+          yarn build
 
-			# get package version
-			- name: 'Get Previous tag'
-				id: previoustag
-				uses: "WyriHaximus/github-action-get-previous-tag@v1"
+  build-linux-generic:
+    name: Build Linux (generic)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install build dependencies
 
-			- name: Build (Arch Linux x86_64)
-				uses: hapakaien/archlinux-package-action@v2
-				with:
-					aur: true
-					update_archlinux_keyring: true
-					pkgver: ${{ steps.previoustag.outputs.tag }}
+      - name: 'Build generic version (x86_64)'
+        run: make build_linux_x86_64_tar
+
+      - name: 'Upload generic version as artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux_x86_64_generic
+          path: build/*
+        
+          #      - name: Build (Arch Linux x86_64)
+          #        uses: hapakaien/archlinux-package-action@v2
+          #        with:
+          #          aur: true
+          #          update_archlinux_keyring: false
+          #          pkgver: ${{ steps.previoustag.outputs.tag }}
+          #          path: buildfiles/archlinux/markdown-preview-server
