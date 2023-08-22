@@ -68,7 +68,6 @@ jobs:
       - name: 'Compress archive'
         run: |
           mkdir pkg_target
-          ls target/x86_64-pc-windows-gnu/release
           mv target/x86_64-pc-windows-gnu/release/$_MDPS_PKG_NAME.exe pkg_target
           cp -r static_assets/templates.d pkg_target
           mkdir -p build
