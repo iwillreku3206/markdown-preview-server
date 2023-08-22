@@ -38,15 +38,39 @@ jobs:
         with:
           name: webview
 
-      - name: 'Build generic version (x86_64)'
+      - name: 'Extract webview'
         run: |
           mkdir -p assets/web_build
-          tar --version
-          file webview.tar.gz
           tar -xzvf webview.tar.gz -C assets/web_build
-          ls assets/web_build
-          
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+            toolchain: stable
+            override: true
+      - name: 'Install Rust dependencies'
+        run: |
+          cargo fetch --locked --target "x86_64-unknown-linux-gnu"
+      - name: 'Build Rust'
+        run: |
+          cargo build --frozen --release --all-features
+      - name: 'Get package info'
+        run: |
+          echo "_MDPS_BUILD_COMMIT=`git rev-parse --short HEAD`" >> "$GITHUB_ENV"
+          echo _MDPS_PKG_NAME=`awk -F ' = ' '$1 ~ /name/ { gsub(/[\"]/, "", $2); printf("%s",$2) }' Cargo.toml` >> "$GITHUB_ENV"
+          echo _MDPS_PKG_VERSION=`awk -F ' = ' '$1 ~ /version/ { gsub(/[\"]/, "", $2); printf("%s",$2) }' Cargo.toml` >> "$GITHUB_ENV"
+          echo "_MDPS_BUILD_DATE=`date -u +%Y-%m-%dT%H:%M:%SZ`" >> "$GITHUB_ENV"
 
+      - name: 'Compress archive'
+        run: |
+          mkdir -p pkg_target/usr/bin
+          mv target/release/$_MDPS_PKG_NAME pkg_target/usr/bin
+          mkdir -p pkg_target/etc
+          cp -r static_assets/templates.d pkg_target/etc
+          cd pkg_target
+          tar -czf ../$_MDPS_PKG_NAME-$_MDPS_PKG_VERSION-$_MDPS_BUILD_COMMIT.tar.gz ./*
+          cd ..
+          mkdir -p build
+          mv $_MDPS_PKG_NAME-$_MDPS_PKG_VERSION-$_MDPS_BUILD_COMMIT.tar.gz build
       - name: 'Upload generic version as artifact'
         uses: actions/upload-artifact@v3
         with:
