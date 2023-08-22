@@ -47,11 +47,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gcc-mingw-w64
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
             toolchain: stable
-            target: x86_64-pc-windows-gnu
-            override: true
+            targets: x86_64-pc-windows-gnu
       - name: 'Install Rust dependencies'
         run: |
           cargo fetch
@@ -78,4 +77,3 @@ jobs:
         with:
           name: windows_x86_64
           path: build/*
-       
