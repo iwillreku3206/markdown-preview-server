@@ -49,7 +49,7 @@ jobs:
             override: true
       - name: 'Install Rust dependencies'
         run: |
-          cargo fetch --locked --target "x86_64-unknown-linux-gnu"
+          cargo fetch
       - name: 'Build Rust'
         run: |
           cargo build --frozen --release --all-features
@@ -76,11 +76,4 @@ jobs:
         with:
           name: linux_x86_64_generic
           path: build/*
-        
-          #      - name: Build (Arch Linux x86_64)
-          #        uses: hapakaien/archlinux-package-action@v2
-          #        with:
-          #          aur: true
-          #          update_archlinux_keyring: false
-          #          pkgver: ${{ steps.previoustag.outputs.tag }}
-          #          path: buildfiles/archlinux/markdown-preview-server
+       
