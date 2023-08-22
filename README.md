@@ -1,5 +1,6 @@
 # Markdown Preview Server
 
+[![Build on Windows](https://github.com/iwillreku3206/markdown-preview-server/actions/workflows/build-windows.yml/badge.svg?branch=main)](https://github.com/iwillreku3206/markdown-preview-server/actions/workflows/build-windows.yml)
 [![Build on Linux](https://github.com/iwillreku3206/markdown-preview-server/actions/workflows/build-linux.yml/badge.svg?branch=main)](https://github.com/iwillreku3206/markdown-preview-server/actions/workflows/build-linux.yml)
 
 A 🔥blazingly fast🔥 markdown preview server written in Rust

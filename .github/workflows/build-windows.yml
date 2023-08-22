@@ -1,0 +1,82 @@
+name: Build on Windows
+
+on:
+  push:
+    branches: main
+
+jobs:
+  build-web:
+    name: Build Webview
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: "Setup Node"
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - run: |
+          corepack enable
+          cd src_web && yarn
+          yarn build
+          tar -C build -czvf webview.tar.gz ./
+      - name: 'Upload webview build as artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: webview
+          path: src_web/webview.tar.gz
+
+  build-linux-generic:
+    name: Build Windows (x86_64)
+    needs: build-web
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Download the webview
+        uses: actions/download-artifact@v3
+        with:
+          name: webview
+
+      - name: 'Extract webview'
+        run: |
+          mkdir -p assets/web_build
+          tar -xzvf webview.tar.gz -C assets/web_build
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-mingw-w64
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+            toolchain: stable
+            target: x86_64-pc-windows-gnu
+            override: true
+      - name: 'Install Rust dependencies'
+        run: |
+          cargo fetch
+      - name: 'Build Rust'
+        run: |
+          cargo build --frozen --release --all-features --target=x86_64-pc-windows-gnu
+      - name: 'Get package info'
+        run: |
+          echo "_MDPS_BUILD_COMMIT=`git rev-parse --short HEAD`" >> "$GITHUB_ENV"
+          echo _MDPS_PKG_NAME=`awk -F ' = ' '$1 ~ /name/ { gsub(/[\"]/, "", $2); printf("%s",$2) }' Cargo.toml` >> "$GITHUB_ENV"
+          echo _MDPS_PKG_VERSION=`awk -F ' = ' '$1 ~ /version/ { gsub(/[\"]/, "", $2); printf("%s",$2) }' Cargo.toml` >> "$GITHUB_ENV"
+          echo "_MDPS_BUILD_DATE=`date -u +%Y-%m-%dT%H:%M:%SZ`" >> "$GITHUB_ENV"
+
+      - name: 'Compress archive'
+        run: |
+          mkdir pkg_target
+          ls target/x86_64-pc-windows-gnu/release
+          mv target/x86_64-pc-windows-gnu/release/$_MDPS_PKG_NAME.exe pkg_target
+          cp -r static_assets/templates.d pkg_target
+          mkdir -p build
+          cd pkg_target
+          zip -ro ../build/$_MDPS_PKG_NAME-$_MDPS_PKG_VERSION-$_MDPS_BUILD_COMMIT.zip ./*
+      - name: 'Upload generic version as artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows_x86_64
+          path: build/*
+       
