@@ -1,4 +1,4 @@
-use crate::{frontmatter_parser::parser::parse_file_with_frontmatter, markdown_extensions};
+use crate::{frontmatter_parser::parser::parse_file_with_frontmatter};
 
 pub fn parse_markdown(raw: &str) -> String {
     let file = parse_file_with_frontmatter(raw);
@@ -33,16 +33,9 @@ pub fn parse_markdown(raw: &str) -> String {
     crate::markdown_extensions::custom_class::add(parser);
     crate::markdown_extensions::toc::add(parser);
 
-	markdown_it::plugins::sourcepos::add(parser);
+    markdown_it::plugins::sourcepos::add(parser);
 
     let ast = parser.parse(&file.document_content);
-    ast.walk(|node, i| {
-        println!(
-            "[{i}] {:?} {:?}::{:?}",
-            node.srcmap, node.node_type, node.node_value
-        );
-    });
-
     let render = ast.render();
 
     crate::hooks::toc::toc(render, file.document_content)
