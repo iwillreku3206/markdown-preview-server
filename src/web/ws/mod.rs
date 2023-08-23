@@ -11,7 +11,8 @@ use tokio::net::{TcpListener, TcpStream};
 use tokio_tungstenite::WebSocketStream;
 use tungstenite::Message;
 
-use crate::{PeerMap, PeerMaps, PreState};
+use crate::{web::ws::editor::ServerToEditorMessage, EditorMap, PeerMap, PeerMaps, PreState};
+use uuid::Uuid;
 
 pub mod editor;
 pub mod webview;
@@ -51,9 +52,13 @@ async fn accept_connection(stream: TcpStream, peers: PeerMaps, pre_state: Arc<Mu
 
     match path {
         "/" => {
+            log::info!("New WebSocket connection ({path}): {addr}. There are {} webview and {} editor connections.", peers.webview_map.lock().await.len() + 1, peers.editor_map.lock().await.len());
             handle_webview_ws(addr, ws_stream, peers.webview_map.clone(), peers, pre_state).await
         }
-        "/editor" => handle_editor_ws(addr, ws_stream, peers.editor_map.clone(), pre_state).await,
+        "/editor" => {
+            log::info!("New WebSocket connection ({path}): {addr}. There are {} webview and {} editor connections.", peers.webview_map.lock().await.len(), peers.editor_map.lock().await.len() + 1);
+            handle_editor_ws(addr, ws_stream, peers.editor_map.clone(), pre_state).await
+        }
         _ => {}
     }
 }
@@ -110,31 +115,39 @@ pub async fn send_to_all(message: Vec<u8>, peers: PeerMap) {
     }
 }
 
+pub async fn send_to_all_editors(message: Vec<u8>, peers: EditorMap) {
+    let sessions = &peers.lock().await;
+    let broadcast_recipients = sessions.iter().map(|(_, (_, ws_sink))| ws_sink);
+    for recp in broadcast_recipients {
+        recp.unbounded_send(Message::Binary(message.clone()))
+            .unwrap();
+    }
+}
+
 async fn handle_editor_ws(
     addr: SocketAddr,
     stream: WebSocketStream<TcpStream>,
-    peers: PeerMap,
+    peers: EditorMap,
     _pre_state: Arc<Mutex<PreState>>,
 ) {
     let (write, read) = stream.split();
 
     let (tx, rx) = unbounded();
 
-    tx.unbounded_send(tungstenite::Message::Binary(
-        "EDITOR_WS".as_bytes().to_vec(),
-    ))
-    .unwrap();
+    let id = Uuid::new_v4().to_string();
 
-    peers.lock().await.insert(addr, tx);
+    let id_payload = serde_json::to_string(&ServerToEditorMessage::EditorId(id.clone())).unwrap();
+    tx.clone()
+        .unbounded_send(tungstenite::Message::Binary(id_payload.as_bytes().to_vec()))
+        .unwrap();
 
-    let broadcast_incoming = read.try_for_each(|msg| {
-        tokio::spawn(send_to_all(msg.into_data(), peers.clone()));
-        ok(())
-    });
+    peers.lock().await.insert(id.clone(), (addr, tx));
+
+    let broadcast_incoming = read.try_for_each(|_msg| ok(()));
     let receive_from_others = rx.map(Ok).forward(write);
 
     pin_mut!(broadcast_incoming, receive_from_others);
     select(broadcast_incoming, receive_from_others).await;
 
-    peers.lock().await.remove(&addr);
+    peers.lock().await.remove(&id);
 }
