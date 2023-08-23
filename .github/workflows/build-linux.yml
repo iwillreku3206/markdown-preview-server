@@ -43,10 +43,7 @@ jobs:
           mkdir -p assets/web_build
           tar -xzvf webview.tar.gz -C assets/web_build
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-            toolchain: stable
-            override: true
+        uses: dtolnay/rust-toolchain@stable
       - name: 'Install Rust dependencies'
         run: |
           cargo fetch
@@ -76,4 +73,3 @@ jobs:
         with:
           name: linux_x86_64_generic
           path: build/*
-       

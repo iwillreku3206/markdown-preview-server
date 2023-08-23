@@ -25,12 +25,13 @@ use tungstenite::Message;
 use util::constants::magic_bytes::{BYTES_CSS, BYTES_DATA, BYTES_FILENAME, BYTES_FRONTMATTER};
 
 pub type Tx = UnboundedSender<Message>;
+pub type EditorMap = Arc<Mutex<HashMap<String, (SocketAddr, Tx)>>>;
 pub type PeerMap = Arc<Mutex<HashMap<SocketAddr, Tx>>>;
 
 #[derive(Debug, Clone)]
 pub struct PeerMaps {
     webview_map: PeerMap,
-    editor_map: PeerMap,
+    editor_map: EditorMap,
 }
 
 #[cfg(target_os = "linux")]
@@ -127,7 +128,7 @@ async fn main() {
 
     let sessions = PeerMaps {
         webview_map: PeerMap::new(Mutex::new(HashMap::new())),
-        editor_map: PeerMap::new(Mutex::new(HashMap::new())),
+        editor_map: EditorMap::new(Mutex::new(HashMap::new())),
     };
 
     let _ = tokio::join!(

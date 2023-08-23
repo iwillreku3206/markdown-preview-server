@@ -10,7 +10,7 @@ use tungstenite::Message;
 
 use crate::{web::ws::send_to_all, PeerMaps, PreState};
 
-use super::editor::ServerToEditorMessage;
+use super::{editor::ServerToEditorMessage, send_to_all_editors};
 
 pub async fn handle_incoming(
     msg: Message,
@@ -41,7 +41,8 @@ pub async fn handle_incoming(
                                 path_str_canon_str.to_string(),
                             ))
                             .unwrap();
-                            send_to_all(json.as_bytes().to_vec(), peers.editor_map.clone()).await;
+                            send_to_all_editors(json.as_bytes().to_vec(), peers.editor_map.clone())
+                                .await;
                         }
                     }
                 }

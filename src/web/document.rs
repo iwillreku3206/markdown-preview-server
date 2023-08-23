@@ -13,6 +13,8 @@ use super::{ws::send_to_all, AppState};
 #[derive(serde::Deserialize)]
 pub struct DocumentRequest {
     text: String,
+    editor_id: String,
+    request_number: u64,
 }
 
 #[derive(serde::Serialize)]
@@ -27,6 +29,16 @@ pub async fn document(
     let unlocked_state = &mut state.lock().await;
 
     let raw = payload.0.text.to_string();
+    if unlocked_state.current_editor == payload.0.editor_id
+        && unlocked_state.current_request_number > payload.0.request_number
+    {
+        return Json(DocumentResponse {
+            status: "ok".to_string(),
+        });
+    }
+
+    unlocked_state.current_editor = payload.0.editor_id;
+    unlocked_state.current_request_number = payload.0.request_number;
 
     let markdown: String = crate::markdown::parse_markdown(&raw);
     let document_with_frontmatter: DocumentWithFrontmatter =
@@ -56,12 +68,10 @@ pub async fn document(
     let _ = send_to_all(
         frontmatter_payload,
         unlocked_state.sessions.webview_map.clone(),
-    ).await;
+    )
+    .await;
 
-    let _ = send_to_all(
-        payload,
-        unlocked_state.sessions.webview_map.clone(),
-    ).await;
+    let _ = send_to_all(payload, unlocked_state.sessions.webview_map.clone()).await;
 
     let result = DocumentResponse {
         status: "ok".to_string(),

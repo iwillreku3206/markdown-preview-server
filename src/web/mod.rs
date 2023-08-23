@@ -17,6 +17,8 @@ pub mod ws;
 #[derive(Clone)]
 pub struct AppState {
     sessions: PeerMaps,
+    current_editor: String,
+    current_request_number: u64,
     pre_state: Arc<Mutex<PreState>>,
 }
 
@@ -55,6 +57,8 @@ pub async fn web_start(sessions: PeerMaps, pre_state: Arc<Mutex<PreState>>) {
         .fallback(frontend::frontend)
         .with_state(Arc::new(Mutex::new(AppState {
             sessions,
+			current_editor: String::new(),
+			current_request_number: 0,
             pre_state: pre_state.clone(),
         })));
 
