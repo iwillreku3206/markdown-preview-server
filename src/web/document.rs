@@ -32,20 +32,18 @@ pub async fn document(
         && unlocked_state.current_request_number > payload.0.request_number
     {
         return Json(DocumentResponse {
-            status: "ok".to_string(),
+            status: "old".to_string(),
         });
     }
 
     unlocked_state.current_editor = payload.0.editor_id;
     unlocked_state.current_request_number = payload.0.request_number;
 
-    let markdown: String = crate::markdown::parse_markdown(&raw);
-    let document_with_frontmatter: DocumentWithFrontmatter =
-        crate::frontmatter_parser::parser::parse_file_with_frontmatter(&raw);
+    let (markdown, frontmatter) = unlocked_state.parser.parse(&raw);
 
     let body = unlocked_state
         .current_template
-        .get_preview(&markdown, &document_with_frontmatter.frontmatter);
+        .get_preview(&markdown, &frontmatter);
 
     let mut payload: Vec<u8> = Vec::from(BYTES_DATA);
     payload.append(&mut body.clone().as_bytes().to_vec());
@@ -53,7 +51,7 @@ pub async fn document(
     let _ = unlocked_state.set_content_payload(payload.clone());
 
     let frontmatter_json =
-        serde_json::to_string(&document_with_frontmatter.frontmatter).unwrap_or_default();
+        serde_json::to_string(&frontmatter).unwrap_or_default();
     let mut frontmatter_payload: Vec<u8> = Vec::from(BYTES_FRONTMATTER);
     frontmatter_payload.append(&mut frontmatter_json.clone().as_bytes().to_vec());
 

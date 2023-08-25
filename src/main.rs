@@ -15,7 +15,7 @@ use css::watch_user_css;
 use env_logger::Env;
 use futures::lock::Mutex;
 use futures_channel::mpsc::UnboundedSender;
-use markdown::MarkdownParser;
+use markdown::{MarkdownParser, ParserType};
 use schemars::schema_for;
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -126,7 +126,11 @@ async fn main() {
     };
 
     let parser = match &config.feature_set as &str {
-        "" => MarkdownParser::default(),
+        "" => MarkdownParser::new(ParserType::Cmark),
+        "plain" => MarkdownParser::new(ParserType::Plain),
+        "gfm" => MarkdownParser::new(ParserType::GFM),
+        "commonmark" => MarkdownParser::new(ParserType::Cmark),
+        "all" => MarkdownParser::new(ParserType::Full),
         _ => MarkdownParser::default(),
     };
 
@@ -145,8 +149,8 @@ async fn main() {
     }));
 
     let _ = tokio::join!(
-		tokio::spawn(crate::web::web_start(state.clone())),
-		tokio::spawn(crate::web::ws::ws_start(state.clone())),
+        tokio::spawn(crate::web::web_start(state.clone())),
+        tokio::spawn(crate::web::ws::ws_start(state.clone())),
         tokio::spawn(watch_user_css(config.css_dir, state.clone()))
     );
 }
