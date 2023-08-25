@@ -4,7 +4,6 @@ use axum::{extract::State, Json};
 use futures::lock::Mutex;
 
 use crate::{
-    frontmatter_parser::parser::DocumentWithFrontmatter,
     util::constants::magic_bytes::{BYTES_DATA, BYTES_FRONTMATTER},
     web::ws::send_to_all,
 };
@@ -50,8 +49,7 @@ pub async fn document(
 
     let _ = unlocked_state.set_content_payload(payload.clone());
 
-    let frontmatter_json =
-        serde_json::to_string(&frontmatter).unwrap_or_default();
+    let frontmatter_json = serde_json::to_string(&frontmatter).unwrap_or_default();
     let mut frontmatter_payload: Vec<u8> = Vec::from(BYTES_FRONTMATTER);
     frontmatter_payload.append(&mut frontmatter_json.clone().as_bytes().to_vec());
 

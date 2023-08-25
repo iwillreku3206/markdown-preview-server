@@ -12,11 +12,12 @@ pub fn read_frontmatter(document: Split<&str>) -> HashMap<String, String> {
     }
 
     let mut i: usize = 1;
+    let len = lines.len();
 
-    while i < lines.len() {
+    while i < len {
         if lines[i] == lines[0] {
             end_line = i + 1;
-            i = lines.len();
+            i = len;
         }
         i += 1;
     }
@@ -31,13 +32,12 @@ pub fn read_frontmatter(document: Split<&str>) -> HashMap<String, String> {
     let frontmatter_parsed = YamlLoader::load_from_str(frontmatter).unwrap_or_default();
 
     for fm in frontmatter_parsed {
-        let hash = fm.as_hash();
-        for h in hash {
-            for j in h {
-                frontmatter_map.insert(
-                    j.0.as_str().unwrap_or_default().to_string(),
-                    j.1.as_str().unwrap_or_default().to_string(),
-                );
+        if let Some(hash) = fm.as_hash() {
+            for h in hash {
+                    frontmatter_map.insert(
+                        h.0.as_str().unwrap_or_default().to_string(),
+                        h.1.as_str().unwrap_or_default().to_string(),
+                    );
             }
         }
     }
