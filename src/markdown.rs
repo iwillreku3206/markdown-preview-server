@@ -5,7 +5,9 @@ use markdown_it::{
     MarkdownIt,
 };
 
-use crate::{frontmatter_parser::parser::parse_file_with_frontmatter, markdown_extensions};
+use crate::{
+    frontmatter_parser::parser::parse_file_with_frontmatter, hooks::toc::toc, markdown_extensions,
+};
 
 pub struct MarkdownParser {
     parser: MarkdownIt,
@@ -23,7 +25,8 @@ impl MarkdownParser {
         let file = parse_file_with_frontmatter(raw);
 
         let ast = self.parser.parse(&file.document_content);
-        let render = ast.render();
+        let mut render = ast.render();
+        render = toc(&render, raw);
 
         (render, file.frontmatter)
     }

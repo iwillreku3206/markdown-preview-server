@@ -3,6 +3,8 @@ use std::{borrow::Cow, collections::HashMap, fs, io::Error};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
+use unicode_segmentation::UnicodeSegmentation;
+
 use crate::config::Config;
 
 #[derive(JsonSchema, Clone, Copy, Deserialize, Serialize, Debug)]
@@ -59,11 +61,65 @@ impl Default for PreparedTemplate {
     fn default() -> Self {
         PreparedTemplate {
             metadata: TemplateMetadata::default(),
-            document_template: "{{body}}".to_string(),
-            preview_template: "{{body}}".to_string(),
+            document_template: "{body}".to_string(),
+            preview_template: "{body}".to_string(),
             variables: vec!["body".to_string()],
         }
     }
+}
+
+fn find_variables(template: &str) -> (Vec<String>, String) {
+    let chars: Vec<&str> = template.graphemes(true).collect();
+    let len = chars.len();
+
+    let mut open = false;
+    let mut i = 0;
+    let mut var_name = String::new();
+    let mut vars: Vec<String> = Vec::new();
+    let mut document = String::new();
+
+    'cloop: for _ in 0..(len) {
+        if let Some(char) = chars.get(i) {
+            let next_char = chars.get(i + 1).unwrap_or(&"");
+            if ((char) == &"\\" && !(next_char == &"\\")) || char != &"\\" {
+                document.push_str(char);
+                if char == &"\\" {
+                    document.push_str(next_char);
+                }
+            }
+            match char {
+                &"\\" => {
+                    i += 1;
+                }
+                &"{" => {
+                    i += 1;
+                    if !open {
+                        open = true;
+                        continue 'cloop;
+                    }
+                }
+                &"}" => {
+                    open = false;
+                    if var_name != String::new() {
+                        vars.push(var_name.clone());
+                        var_name = String::new();
+                    }
+                    i += 1;
+                    continue 'cloop;
+                }
+                _ => (),
+            }
+
+            if open {
+                if let None = vars.iter().find(|v| var_name.eq(*v)) {
+                    var_name.push_str(char);
+                }
+            }
+
+            i += 1
+        }
+    }
+    (vars, document)
 }
 
 impl PreparedTemplate {
@@ -83,108 +139,29 @@ impl PreparedTemplate {
         let css = fs::read_to_string(format!("{}/template.css", template_path))?;
         let mut all_variables: Vec<String> = Vec::new();
 
-        {
-            let mut open_brace = false;
-            let mut half_brace = false;
-            let mut current_variable = String::new();
-            let mut variables: Vec<String> = Vec::new();
+        let (body_variables, body_document) = find_variables(&body_template_str);
+        body_template_str = body_document;
 
-            let mut i = 0;
-
-            while i < body_template_str.len() {
-                let char = body_template_str.chars().nth(i).unwrap();
-                if char == '{' && half_brace == false {
-                    half_brace = true;
-                }
-
-                if char == '{' && half_brace == true {
-                    open_brace = true;
-                    half_brace = false;
-                }
-
-                if char != '{' && half_brace == true {
-                    half_brace = false;
-                }
-
-                if char == '}'
-                    && body_template_str.chars().nth(i + 1).unwrap() == '}'
-                    && open_brace == true
-                {
-                    open_brace = false;
-                    half_brace = false;
-                    variables.push(current_variable.clone());
-                    current_variable.clear();
-                    i += 1;
-                }
-
-                if char != '{' && open_brace == true {
-                    current_variable.push(char);
-                }
-
-                i += 1;
+        for v in &body_variables {
+            if v.trim() == "css" {
+                body_template_str = body_template_str.replace(&format!("{{{v}}}"), &css);
             }
-
-            for v in &variables {
-                if v.trim() == "css" {
-                    body_template_str = body_template_str.replace(&format!("{{{{{v}}}}}"), &css);
-                }
-                all_variables.push(v.to_string());
-            }
+            all_variables.push(v.to_string());
         }
 
-        {
-            let mut open_brace = false;
-            let mut half_brace = false;
-            let mut current_variable = String::new();
-            let mut variables: Vec<String> = Vec::new();
+        let (document_variables, document_document) = find_variables(&document_template_str);
+        document_template_str = document_document;
 
-            let mut i = 0;
-
-            while i < document_template_str.len() {
-                let char = document_template_str.chars().nth(i).unwrap();
-                if char == '{' && half_brace == false {
-                    half_brace = true;
-                }
-
-                if char == '{' && half_brace == true {
-                    open_brace = true;
-                    half_brace = false;
-                }
-
-                if char != '{' && half_brace == true {
-                    half_brace = false;
-                }
-
-                if char == '}'
-                    && document_template_str.chars().nth(i + 1).unwrap() == '}'
-                    && open_brace == true
-                {
-                    open_brace = false;
-                    half_brace = false;
-                    variables.push(current_variable.clone());
-                    current_variable.clear();
-                    i += 1;
-                }
-
-                if char != '{' && open_brace == true {
-                    current_variable.push(char);
-                }
-
-                i += 1;
+        for v in &document_variables {
+            if v.trim() == "css" {
+                document_template_str = document_template_str.replace(&format!("{{{v}}}"), &css);
             }
 
-            for v in &variables {
-                if v.trim() == "css" {
-                    document_template_str =
-                        document_template_str.replace(&format!("{{{{{v}}}}}"), &css);
-                }
-
-                if v.trim() == "body" {
-                    document_template_str =
-                        document_template_str.replace(&format!("{{{{{v}}}}}"), &body_template_str);
-                }
-                all_variables.push(v.to_string());
+            if v.trim() == "body" {
+                document_template_str =
+                    document_template_str.replace(&format!("{{{v}}}"), &body_template_str);
             }
+            all_variables.push(v.to_string());
         }
 
         Ok(PreparedTemplate {
@@ -200,13 +177,13 @@ impl PreparedTemplate {
 
         for v in &self.variables {
             if v.trim() == "body" {
-                preview = preview.replace(&format!("{{{{{v}}}}}"), &content);
+                preview = preview.replace(&format!("{{{v}}}"), &content);
             }
 
             if v.trim().starts_with("fm.") {
                 let fm_key = v.trim().replace("fm.", "");
                 preview = preview.replace(
-                    &format!("{{{{{v}}}}}"),
+                    &format!("{{{v}}}"),
                     &frontmatter.get(&fm_key).unwrap_or(&"undefined".to_string()),
                 );
             }

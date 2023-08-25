@@ -41,6 +41,7 @@ tokio-tungstenite = "0.18.0"
 toml = "0.7.4"
 tower-http = { version = "0.4.0", features = ["full"] }
 tungstenite = "0.18.0"
+unicode-segmentation = "1.10.1"
 url = "2.4.0"
 urlencoding = "2.1.2"
 uuid = { version = "1.4.1", features = ["v4", "serde"] }
