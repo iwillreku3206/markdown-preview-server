@@ -3,9 +3,7 @@ use std::sync::Arc;
 use axum::{extract::State, Json};
 use futures::lock::Mutex;
 
-use crate::util::constants::magic_bytes::BYTES_FILENAME;
-
-use super::{AppState, ws::send_to_all};
+use crate::{util::constants::magic_bytes::BYTES_FILENAME, web::ws::send_to_all};
 
 #[derive(serde::Deserialize)]
 pub struct DocumentRequest {
@@ -18,7 +16,7 @@ pub struct DocumentResponse {
 }
 
 pub async fn filename(
-    State(state): State<Arc<Mutex<AppState>>>,
+    State(state): State<Arc<Mutex<crate::State>>>,
     payload: Json<DocumentRequest>,
 ) -> Json<DocumentResponse> {
     let unlocked_state = &mut state.lock().await;
@@ -26,11 +24,9 @@ pub async fn filename(
     let filename = payload.0.filename.to_string();
 
     let mut payload: Vec<u8> = Vec::from(BYTES_FILENAME);
-
     payload.append(&mut filename.clone().as_bytes().to_vec());
 
-    let _ = unlocked_state.set_filename_payload(&payload).await;
-
+    let _ = unlocked_state.set_filename_payload(payload.clone());
     let _ = send_to_all(payload, unlocked_state.sessions.webview_map.clone());
 
     let result = DocumentResponse {

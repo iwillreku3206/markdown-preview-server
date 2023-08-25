@@ -12,17 +12,18 @@ use futures::lock::Mutex;
 use include_dir::include_dir;
 use include_dir::Dir;
 
-use super::AppState;
-
 static WEB_BUILD: Dir<'_> = include_dir!("assets/web_build");
 
 const SVELTE_PATHS: [&str; 2] = ["", "content"];
 
 #[debug_handler]
-pub async fn frontend(_path: Uri, State(state): State<Arc<Mutex<AppState>>>) -> impl IntoResponse {
-    let pre_state = state.lock().await;
+pub async fn frontend(
+    _path: Uri,
+    State(state): State<Arc<Mutex<crate::State>>>,
+) -> impl IntoResponse {
+    let unlocked_state = state.lock().await;
 
-    let frontend_address = &pre_state.pre_state.lock().await.config.frontend_address;
+    let frontend_address = &unlocked_state.config.frontend_address;
     let mut path = _path.to_string().trim_start_matches('/').to_string();
     if SVELTE_PATHS.to_vec().contains(&path.as_str()) {
         path = "".to_string();

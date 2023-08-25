@@ -1,36 +1,33 @@
 use std::{net::SocketAddr, sync::Arc};
 
-use futures::{
-    future::{ok, select},
-    lock::Mutex,
-};
+use futures::future::{ok, select};
 use futures_channel::mpsc::unbounded;
-use futures_util::{pin_mut, stream::TryStreamExt, StreamExt};
+use futures_util::{lock::Mutex, pin_mut, stream::TryStreamExt, StreamExt};
 
 use tokio::net::{TcpListener, TcpStream};
 use tokio_tungstenite::WebSocketStream;
 use tungstenite::Message;
 
-use crate::{web::ws::editor::ServerToEditorMessage, EditorMap, PeerMap, PeerMaps, PreState};
+use crate::{web::ws::editor::ServerToEditorMessage, EditorMap, PeerMap, PeerMaps};
 use uuid::Uuid;
 
 pub mod editor;
 pub mod webview;
 
-pub async fn ws_start(peers: PeerMaps, pre_state: Arc<Mutex<PreState>>) {
+pub async fn ws_start(state: Arc<Mutex<crate::State>>) {
     log::info!("Starting websocket server");
-    let addr = format!("127.0.0.1:{}", pre_state.lock().await.config.websocket_port);
+    let addr = format!("127.0.0.1:{}", state.lock().await.config.websocket_port);
 
     // Create the event loop and TCP listener we'll accept connections on.
     let try_socket = TcpListener::bind(&addr).await;
     let listener = try_socket.expect("Failed to bind");
 
     while let Ok((stream, _)) = listener.accept().await {
-        tokio::spawn(accept_connection(stream, peers.clone(), pre_state.clone()));
+        tokio::spawn(accept_connection(stream, state.clone()));
     }
 }
 
-async fn accept_connection(stream: TcpStream, peers: PeerMaps, pre_state: Arc<Mutex<PreState>>) {
+async fn accept_connection(stream: TcpStream, state: Arc<Mutex<crate::State>>) -> impl Send {
     let addr = stream
         .peer_addr()
         .expect("connected streams should have a peer address");
@@ -47,17 +44,18 @@ async fn accept_connection(stream: TcpStream, peers: PeerMaps, pre_state: Arc<Mu
         .expect("Error during the websocket handshake occurred");
 
     let path = req.path.unwrap_or_default();
+    let peers = state.lock().await.sessions.clone();
 
     log::info!("New WebSocket connection ({path}): {addr}. There were {} webview and {} editor connections.", peers.webview_map.lock().await.len(), peers.editor_map.lock().await.len());
 
     match path {
         "/" => {
             log::info!("New WebSocket connection ({path}): {addr}. There are {} webview and {} editor connections.", peers.webview_map.lock().await.len() + 1, peers.editor_map.lock().await.len());
-            handle_webview_ws(addr, ws_stream, peers.webview_map.clone(), peers, pre_state).await
+            handle_webview_ws(addr, ws_stream, peers.webview_map.clone(), peers, state).await
         }
         "/editor" => {
             log::info!("New WebSocket connection ({path}): {addr}. There are {} webview and {} editor connections.", peers.webview_map.lock().await.len(), peers.editor_map.lock().await.len() + 1);
-            handle_editor_ws(addr, ws_stream, peers.editor_map.clone(), pre_state).await
+            handle_editor_ws(addr, ws_stream, peers.editor_map.clone()).await
         }
         _ => {}
     }
@@ -68,36 +66,36 @@ async fn handle_webview_ws(
     stream: WebSocketStream<TcpStream>,
     peers: PeerMap,
     peer_maps: PeerMaps,
-    pre_state: Arc<Mutex<PreState>>,
+    state: Arc<Mutex<crate::State>>,
 ) {
     let (write, read) = stream.split();
 
     let (tx, rx) = unbounded();
 
     tx.unbounded_send(tungstenite::Message::Binary(
-        pre_state.lock().await.current_content_payload.clone(),
+        state.lock().await.current_content_payload.clone(),
     ))
     .unwrap();
 
     tx.unbounded_send(tungstenite::Message::Binary(
-        pre_state.lock().await.current_css_payload.clone(),
+        state.lock().await.current_css_payload.clone(),
     ))
     .unwrap();
 
     tx.unbounded_send(tungstenite::Message::Binary(
-        pre_state.lock().await.current_frontmatter_payload.clone(),
+        state.lock().await.current_frontmatter_payload.clone(),
     ))
     .unwrap();
 
     tx.unbounded_send(tungstenite::Message::Binary(
-        pre_state.lock().await.current_filename_payload.clone(),
+        state.lock().await.current_filename_payload.clone(),
     ))
     .unwrap();
 
     peers.lock().await.insert(addr, tx);
 
     let broadcast_incoming =
-        read.try_for_each(|msg| webview::handle_incoming(msg, &peer_maps, pre_state.clone()));
+        read.try_for_each(|msg| webview::handle_incoming(msg, &peer_maps, state.clone()));
     let receive_from_others = rx.map(Ok).forward(write);
 
     pin_mut!(broadcast_incoming, receive_from_others);
@@ -124,12 +122,7 @@ pub async fn send_to_all_editors(message: Vec<u8>, peers: EditorMap) {
     }
 }
 
-async fn handle_editor_ws(
-    addr: SocketAddr,
-    stream: WebSocketStream<TcpStream>,
-    peers: EditorMap,
-    _pre_state: Arc<Mutex<PreState>>,
-) {
+async fn handle_editor_ws(addr: SocketAddr, stream: WebSocketStream<TcpStream>, peers: EditorMap) {
     let (write, read) = stream.split();
 
     let (tx, rx) = unbounded();

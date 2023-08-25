@@ -15,6 +15,7 @@ use css::watch_user_css;
 use env_logger::Env;
 use futures::lock::Mutex;
 use futures_channel::mpsc::UnboundedSender;
+use markdown::MarkdownParser;
 use schemars::schema_for;
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -59,18 +60,21 @@ pub struct Args {
     pub generate_template_schema: bool,
 }
 
-#[derive(Clone)]
-pub struct PreState {
+pub struct State {
     args: Args,
     config: Config,
+    parser: MarkdownParser,
     current_content_payload: Vec<u8>,
     current_css_payload: Vec<u8>,
     current_filename_payload: Vec<u8>,
     current_frontmatter_payload: Vec<u8>,
     current_template: PreparedTemplate,
+    sessions: PeerMaps,
+    current_editor: String,
+    current_request_number: u64,
 }
 
-impl PreState {
+impl State {
     pub fn set_content_payload(&mut self, payload: Vec<u8>) {
         self.current_content_payload = payload;
     }
@@ -85,7 +89,7 @@ impl PreState {
     }
 }
 
-unsafe impl Send for PreState {}
+unsafe impl Send for State {}
 
 #[tokio::main]
 async fn main() {
@@ -116,7 +120,17 @@ async fn main() {
     let mut css_payload = BYTES_CSS.to_vec();
     css_payload.append(&mut css.clone().as_bytes().to_vec());
 
-    let pre_state = Arc::new(Mutex::new(PreState {
+    let sessions = PeerMaps {
+        webview_map: PeerMap::new(Mutex::new(HashMap::new())),
+        editor_map: EditorMap::new(Mutex::new(HashMap::new())),
+    };
+
+    let parser = match &config.feature_set as &str {
+        "" => MarkdownParser::default(),
+        _ => MarkdownParser::default(),
+    };
+
+    let state = Arc::new(Mutex::new(State {
         args: args.clone(),
         config: config.clone(),
         current_content_payload: BYTES_DATA.to_vec(),
@@ -124,23 +138,15 @@ async fn main() {
         current_filename_payload: BYTES_FILENAME.to_vec(),
         current_frontmatter_payload: BYTES_FRONTMATTER.to_vec(),
         current_template: PreparedTemplate::load("default", config.clone()).unwrap_or_default(),
+        sessions,
+        parser,
+        current_editor: String::new(),
+        current_request_number: 0,
     }));
 
-    let sessions = PeerMaps {
-        webview_map: PeerMap::new(Mutex::new(HashMap::new())),
-        editor_map: EditorMap::new(Mutex::new(HashMap::new())),
-    };
-
     let _ = tokio::join!(
-        tokio::spawn(crate::web::ws::ws_start(
-            sessions.clone(),
-            pre_state.clone()
-        )),
-        tokio::spawn(crate::web::web_start(sessions.clone(), pre_state.clone())),
-        tokio::spawn(watch_user_css(
-            config.css_dir,
-            pre_state.clone(),
-            sessions.clone(),
-        ))
+		tokio::spawn(crate::web::web_start(state.clone())),
+		tokio::spawn(crate::web::ws::ws_start(state.clone())),
+        tokio::spawn(watch_user_css(config.css_dir, state.clone()))
     );
 }

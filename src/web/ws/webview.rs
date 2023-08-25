@@ -1,21 +1,17 @@
-use std::{
-    fs,
-    path::{self, Path},
-    sync::Arc,
-};
+use std::{fs, path::Path, sync::Arc};
 
 use futures::lock::Mutex;
 use relative_path::RelativePath;
 use tungstenite::Message;
 
-use crate::{web::ws::send_to_all, PeerMaps, PreState};
+use crate::{PeerMaps, State};
 
 use super::{editor::ServerToEditorMessage, send_to_all_editors};
 
 pub async fn handle_incoming(
     msg: Message,
     peers: &PeerMaps,
-    state: Arc<Mutex<PreState>>,
+    state: Arc<Mutex<State>>,
 ) -> Result<(), tungstenite::Error> {
     let msg = msg.into_data();
     if msg.len() < 4 {

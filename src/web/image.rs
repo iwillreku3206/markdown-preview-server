@@ -8,34 +8,15 @@ use axum::{
 };
 use futures::lock::Mutex;
 
-use super::AppState;
-
 pub async fn image(
     image: Result<Path<String>, PathRejection>,
-    State(state): State<Arc<Mutex<AppState>>>,
+    State(state): State<Arc<Mutex<crate::State>>>,
 ) -> impl IntoResponse {
+    let unlocked_state = state.lock().await;
     match image {
         Ok(image) => {
-            let image_dir_enabled = &state
-                .lock()
-                .await
-                .pre_state
-                .lock()
-                .await
-                .config
-                .image_dir_enabled
-                .clone();
-
-            let image_dir = &state
-                .lock()
-                .await
-                .pre_state
-                .lock()
-                .await
-                .config
-                .image_dir
-                .clone()
-                .to_owned();
+            let image_dir_enabled = &unlocked_state.config.image_dir_enabled;
+            let image_dir = &unlocked_state.config.image_dir;
 
             if !image_dir_enabled {
                 return Response::builder()
@@ -53,7 +34,7 @@ pub async fn image(
 
             match std::fs::read(format!(
                 "{}/{}",
-                shellexpand::env(image_dir).unwrap_or_default(),
+                shellexpand::env(&image_dir).unwrap_or_default(),
                 image.as_str()
             )) {
                 Ok(file) => Response::builder()
