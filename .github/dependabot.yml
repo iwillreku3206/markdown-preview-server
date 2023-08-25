@@ -1,0 +1,17 @@
+# For possible configuration options see:
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+# updates for Rust / cargo crates
+- package-ecosystem: "cargo"
+  directory: "/"
+  schedule:
+    interval: "daily"
+  open-pull-requests-limit: 5
+# updates for yarn
+- package-ecosystem: "npm"
+  directory: "/src_web"
+  schedule:
+    interval: "daily"
+  open-pull-requests-limit: 5
