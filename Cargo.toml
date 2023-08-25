@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 axum = "0.6.12"
-axum-macros = "0.3.7"
+axum-macros = "0.3.8"
 clap = { version = "4.1.8", features = ["derive"] }
 contains = "0.1.0"
 delay = "0.3.1"
