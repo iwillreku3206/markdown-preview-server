@@ -9,12 +9,12 @@ use crate::config::Config;
 
 #[derive(JsonSchema, Clone, Copy, Deserialize, Serialize, Debug)]
 pub struct PrintingMetadata {
-    paper_width_mm: f64,
-    paper_height_mm: f64,
-    page_margin_left_mm: f64,
-    page_margin_right_mm: f64,
-    page_margin_top_mm: f64,
-    page_margin_bottom_mm: f64,
+    pub paper_width_mm: f64,
+    pub paper_height_mm: f64,
+    pub page_margin_left_mm: f64,
+    pub page_margin_right_mm: f64,
+    pub page_margin_top_mm: f64,
+    pub page_margin_bottom_mm: f64,
 }
 
 impl Default for PrintingMetadata {
@@ -32,10 +32,10 @@ impl Default for PrintingMetadata {
 
 #[derive(JsonSchema, Serialize, Deserialize, Debug, Clone)]
 pub struct TemplateMetadata {
-    unique_id: String,
-    display_name: String,
-    print_options: PrintingMetadata,
-    required_fonts: Vec<String>,
+    pub unique_id: String,
+    pub display_name: String,
+    pub print_options: PrintingMetadata,
+    pub required_fonts: Vec<String>,
 }
 
 impl Default for TemplateMetadata {
@@ -51,10 +51,10 @@ impl Default for TemplateMetadata {
 
 #[derive(Debug, Clone)]
 pub struct PreparedTemplate {
-    metadata: TemplateMetadata,
-    document_template: String,
-    preview_template: String,
-    variables: Vec<String>,
+    pub metadata: TemplateMetadata,
+    pub document_template: String,
+    pub preview_template: String,
+    pub variables: Vec<String>,
 }
 
 impl Default for PreparedTemplate {
@@ -190,5 +190,29 @@ impl PreparedTemplate {
         }
 
         preview
+    }
+
+    pub fn get_document(&self, content: &str, frontmatter: &HashMap<String, String>) -> String {
+        let mut document = self.document_template.clone();
+
+        for v in &self.variables {
+            if v.trim() == "body" {
+                document = document.replace(&format!("{{{v}}}"), &content);
+            }
+
+            if v.trim().starts_with("fm.") {
+                let fm_key = v.trim().replace("fm.", "");
+                document = document.replace(
+                    &format!("{{{v}}}"),
+                    &frontmatter.get(&fm_key).unwrap_or(&"undefined".to_string()),
+                );
+            }
+        }
+
+        document
+    }
+
+    pub fn landscape(&self) -> bool {
+        self.metadata.print_options.paper_height_mm < self.metadata.print_options.paper_width_mm
     }
 }

@@ -1,5 +1,6 @@
 pub mod config;
 mod css;
+pub mod export;
 pub mod frontmatter_parser;
 pub mod hooks;
 pub mod markdown;
@@ -64,6 +65,7 @@ pub struct State {
     args: Args,
     config: Config,
     parser: MarkdownParser,
+    current_document: String,
     current_content_payload: Vec<u8>,
     current_css_payload: Vec<u8>,
     current_filename_payload: Vec<u8>,
@@ -146,6 +148,7 @@ async fn main() {
         parser,
         current_editor: String::new(),
         current_request_number: 0,
+		current_document: String::new(),
     }));
 
     let _ = tokio::join!(

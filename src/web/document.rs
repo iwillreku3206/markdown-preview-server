@@ -55,6 +55,8 @@ pub async fn document(
 
     let _ = unlocked_state.set_frontmatter_payload(frontmatter_payload.clone());
 
+    unlocked_state.current_document = raw.clone();
+
     let _ = send_to_all(
         frontmatter_payload,
         unlocked_state.sessions.webview_map.clone(),

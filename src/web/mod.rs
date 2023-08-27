@@ -11,6 +11,7 @@ mod document;
 mod filename;
 mod frontend;
 mod image;
+mod pdf;
 mod ping;
 pub mod ws;
 
@@ -19,6 +20,7 @@ pub async fn web_start(state: Arc<Mutex<State>>) {
         .route("/ping", get(ping::ping))
         .route("/document", post(document::document))
         .route("/filename", post(filename::filename))
+        .route("/pdf", get(pdf::pdf))
         .route("/imagedir/:image", get(image::image))
         .fallback(frontend::frontend)
         .with_state(state.clone());
