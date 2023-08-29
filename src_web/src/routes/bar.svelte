@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { messageStore, resetWebSocket } from '../websocket';
+	import { messageStore} from '../websocket';
 	import { BYTES_FILENAME, BYTES_FRONTMATTER } from '../websocketPrefixes';
 	import IconSettings from '~icons/mdi/settings';
 	import IconDownArrow from '~icons/mdi/arrow-down';
@@ -38,6 +38,8 @@
 			}
 		}
 	});
+
+  export let resetWebSocket: () => void; 
 </script>
 
 <div class="flex flex-row h-16 bg-base-300 items-center px-4 w-full">
