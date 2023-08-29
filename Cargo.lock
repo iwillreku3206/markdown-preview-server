@@ -1506,9 +1506,9 @@ checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
 
 [[package]]
 name = "markdown-it"
-version = "0.5.1"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c44ffb00018b76ef3c6eff5e17d34b44f0bbded0b70291940564c527cba07ad8"
+checksum = "181d1b4704b0a2fc6027d3f758a7eedb975dcbaab86e6794901b8cfc52af94d5"
 dependencies = [
  "argparse",
  "const_format",
