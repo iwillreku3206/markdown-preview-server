@@ -19,7 +19,7 @@ pub async fn export_to_pdf(
     let html = toc(&template.get_document(&document, &frontmatter), &markdown);
 
     let browser = Browser::new(LaunchOptions {
-        headless: false,
+        headless: true,
         ..Default::default()
     })?;
     let tab = browser.new_tab()?;
