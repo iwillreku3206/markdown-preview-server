@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { messageStore} from '../websocket';
+	import { messageStore } from '../websocket';
 	import { BYTES_FILENAME, BYTES_FRONTMATTER } from '../websocketPrefixes';
 	import IconSettings from '~icons/mdi/settings';
 	import IconDownArrow from '~icons/mdi/arrow-down';
 	import IconReset from '~icons/mdi/refresh';
+	import IconDownload from '~icons/mdi/download';
 	import { options } from '../optionStore';
 
 	let title = 'Untitled';
@@ -39,7 +40,7 @@
 		}
 	});
 
-  export let resetWebSocket: () => void; 
+	export let resetWebSocket: () => void;
 </script>
 
 <div class="flex flex-row h-16 bg-base-300 items-center px-4 w-full">
@@ -62,6 +63,9 @@
 			<button class="btn btn-ghost text-xl" on:click={resetWebSocket}>
 				<IconReset />
 			</button>
+			<a class="btn btn-ghost text-xl" href="/pdf" download>
+				<IconDownload />
+			</a>
 		</div>
 	</div>
 </div>
