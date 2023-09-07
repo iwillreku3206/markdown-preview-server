@@ -2,7 +2,12 @@
 	import { onMount } from 'svelte';
 	import { messageStore, resetWebSocket, send } from '../../websocket';
 	import { BYTES_CSS, BYTES_DATA } from '../../websocketPrefixes';
-	import('https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js');
+  //eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //@ts-ignore
+	import('mathjax/es5/tex-mml-chtml');
+  //eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //@ts-ignore
+	import('mathjax/es5/tex-chtml-full');
 	import './page.css';
 
 	function jumpto(anchor: string) {
@@ -49,9 +54,9 @@
 		if (event.data === 'followBottom=FALSE') {
 			followBottom = false;
 		}
-    if (event.data === 'wsReconnect') {
-    resetWebSocket()
-    }
+		if (event.data === 'wsReconnect') {
+			resetWebSocket();
+		}
 	});
 
 	function handleClick(e: MouseEvent) {
@@ -91,6 +96,6 @@
 		word-wrap: break-word;
 		overflow-wrap: break-word;
 		word-break: break-all;
-    min-height: 100vh;
+		min-height: 100vh;
 	}
 </style>
