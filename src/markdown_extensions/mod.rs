@@ -7,3 +7,4 @@ pub mod image_with_file;
 pub mod latex;
 pub mod newline;
 pub mod toc;
+pub mod page_break;

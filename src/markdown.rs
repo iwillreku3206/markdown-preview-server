@@ -81,6 +81,7 @@ impl MarkdownParser {
                 markdown_extensions::equation_graph::add(&mut parser);
                 markdown_extensions::custom_class::add(&mut parser);
                 markdown_extensions::toc::add(&mut parser);
+				markdown_extensions::page_break::add(&mut parser);
 
                 markdown_it::plugins::sourcepos::add(&mut parser);
 
