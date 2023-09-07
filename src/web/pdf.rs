@@ -16,9 +16,12 @@ pub async fn pdf(State(state): State<Arc<Mutex<crate::State>>>) -> impl IntoResp
             .header("Content-Disposition", "attachment; filename=export.pdf")
             .body(Full::from(payload))
             .unwrap(),
-        Err(_) => Response::builder()
+        Err(err) => {
+			log::error!("Error generating PDF: {}", err);
+			Response::builder()
             .status(500)
             .body(Full::from("Error generating PDF"))
-            .unwrap(),
+            .unwrap()
+		},
     }
 }
