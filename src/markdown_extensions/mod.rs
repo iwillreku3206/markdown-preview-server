@@ -5,6 +5,7 @@ pub mod equation_graph;
 pub mod heading_with_id;
 pub mod image_with_file;
 pub mod latex;
+pub mod latex_inline;
 pub mod newline;
 pub mod toc;
 pub mod page_break;

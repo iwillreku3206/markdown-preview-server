@@ -75,6 +75,7 @@ impl MarkdownParser {
                 html::add(&mut parser);
                 extra::tables::add(&mut parser);
                 markdown_extensions::latex::add(&mut parser);
+                markdown_extensions::latex_inline::add(&mut parser);
                 markdown_extensions::newline::add(&mut parser);
                 markdown_extensions::heading_with_id::add(&mut parser);
                 markdown_extensions::code_block::add(&mut parser);
