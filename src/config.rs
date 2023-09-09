@@ -83,11 +83,25 @@ impl Config {
     pub fn load(args: Args) -> Self {
         match std::fs::read(args.clone().config_path) {
             Ok(file) => match String::from_utf8(file) {
-                Ok(file) => {
-                    let config: Config = toml::from_str(&file).unwrap_or_default();
-                    config
+                Ok(file) => match toml::from_str(&file) {
+                    Ok(config) => config,
+                    Err(err) => {
+                        log::error!(
+                            "Failed to parse config file at {}: {}",
+                            args.config_path,
+                            err
+                        );
+                        Config::default()
+                    }
+                },
+                Err(err) => {
+                    log::error!(
+                        "Failed to read config file at {}: {}",
+                        args.config_path,
+                        err
+                    );
+                    Config::default()
                 }
-                Err(_) => Config::default(),
             },
             Err(_) => {
                 log::info!("No config file detected at {}", args.config_path);

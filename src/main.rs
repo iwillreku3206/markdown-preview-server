@@ -143,12 +143,12 @@ async fn main() {
         current_css_payload: css_payload,
         current_filename_payload: BYTES_FILENAME.to_vec(),
         current_frontmatter_payload: BYTES_FRONTMATTER.to_vec(),
-        current_template: PreparedTemplate::load("default", config.clone()).unwrap_or_default(),
+        current_template: PreparedTemplate::load(&config.template, &config).unwrap_or_default(),
         sessions,
         parser,
         current_editor: String::new(),
         current_request_number: 0,
-		current_document: String::new(),
+        current_document: String::new(),
     }));
 
     let _ = tokio::join!(

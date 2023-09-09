@@ -123,11 +123,13 @@ fn find_variables(template: &str) -> (Vec<String>, String) {
 }
 
 impl PreparedTemplate {
-    pub fn load(template: &str, config: Config) -> Result<Self, Error> {
+    pub fn load(template: &str, config: &Config) -> Result<Self, Error> {
         let cfg = config.clone();
         let template_dir_path =
             shellexpand::env(&cfg.template_dir).unwrap_or(Cow::from(config.clone().template_dir));
 
+        log::info!("Loading templates from {}", template_dir_path);
+        log::info!("Current template: {}", template);
         let template_path = format!("{}/{}", template_dir_path, template);
         let template_metadata_str = fs::read_to_string(format!("{}/template.json", template_path))?;
         let template_metadata: TemplateMetadata =
