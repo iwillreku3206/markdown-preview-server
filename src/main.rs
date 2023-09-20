@@ -59,6 +59,10 @@ pub struct Args {
     /// Outputs the template schema into stdout
     #[arg(long = "generate-template-schema")]
     pub generate_template_schema: bool,
+
+    /// Renders a given file to stdout
+    #[arg(long = "render-file", value_name = "FILE")]
+    pub render: Option<String>,
 }
 
 pub struct State {
@@ -135,6 +139,21 @@ async fn main() {
         "all" => MarkdownParser::new(ParserType::Full),
         _ => MarkdownParser::default(),
     };
+
+    if let Some(path) = &args.render {
+        match std::fs::read_to_string(path) {
+            Ok(file) => {
+                let (html, _) = &parser.parse(&file);
+
+                println!("{}", html);
+                return;
+            }
+            Err(e) => {
+                eprintln!("Failed to read file: {}", e);
+                return;
+            }
+        };
+    }
 
     let state = Arc::new(Mutex::new(State {
         args: args.clone(),
