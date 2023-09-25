@@ -598,6 +598,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "data-encoding"
+version = "2.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c2e66c9d817f1720209181c316d28635c050fa304f9c79e47a520882661b7308"
+
+[[package]]
 name = "delay"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1119,7 +1125,7 @@ dependencies = [
  "serde_json",
  "tempfile",
  "thiserror",
- "tungstenite",
+ "tungstenite 0.18.0",
  "url",
  "which",
  "winreg 0.10.1",
@@ -1575,7 +1581,7 @@ dependencies = [
  "tokio-tungstenite",
  "toml",
  "tower-http",
- "tungstenite",
+ "tungstenite 0.18.0",
  "unicode-segmentation",
  "url",
  "urlencoding",
@@ -2770,14 +2776,14 @@ dependencies = [
 
 [[package]]
 name = "tokio-tungstenite"
-version = "0.18.0"
+version = "0.20.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "54319c93411147bced34cb5609a80e0a8e44c5999c93903a81cd866630ec0bfd"
+checksum = "212d5dcb2a1ce06d81107c3d0ffa3121fe974b73f068c8282cb1c32328113b6c"
 dependencies = [
  "futures-util",
  "log",
  "tokio",
- "tungstenite",
+ "tungstenite 0.20.1",
 ]
 
 [[package]]
@@ -2928,6 +2934,25 @@ dependencies = [
  "base64 0.13.1",
  "byteorder",
  "bytes",
+ "http",
+ "httparse",
+ "log",
+ "rand",
+ "sha1",
+ "thiserror",
+ "url",
+ "utf-8",
+]
+
+[[package]]
+name = "tungstenite"
+version = "0.20.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9e3dac10fd62eaf6617d3a904ae222845979aec67c615d1c842b4002c7666fb9"
+dependencies = [
+ "byteorder",
+ "bytes",
+ "data-encoding",
  "http",
  "httparse",
  "log",
