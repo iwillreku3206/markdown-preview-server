@@ -36,7 +36,7 @@
   },
   "type": "module",
   "dependencies": {
-    "daisyui": "^2.52.0",
+    "daisyui": "^3.9.4",
     "mathjax": "^3.2.2"
   }
 }
