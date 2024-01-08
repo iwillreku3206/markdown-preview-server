@@ -1,0 +1,18 @@
+Frames are seperated by newlines in the input stream. The first 2 bytes of each frame are the opcode. The following bytes are the payload.
+
+The following opcodes are supported:
+
+Server to editor:
+0x0000: Ping
+0x0001: Pong
+0x0100: Set cursor position
+0x0101: Set file path
+0xffff: Close
+
+Editor to server:
+0x0000: Ping
+0x0001: Pong
+0x0100: Replace text
+0x0101: Set document title
+0x0102: Set file path
+0xffff: Close

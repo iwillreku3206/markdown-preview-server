@@ -1,0 +1,39 @@
+[package]
+name = "markdown-preview-server"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+askama = { version = "0.12.1", features = ["with-axum"] }
+axum = "0.7.3"
+clap = { version = "4.4.13", features = ["unicode", "derive"] }
+directories = "5.0.1"
+env_logger = "0.10.1"
+katex = "0.4.6"
+log = "0.4.20"
+markdown-it = "0.6.0"
+serde = "1.0.194"
+serde_json = "1.0.111"
+tokio = { version = "1.35.1", features = ["full"] }
+toml = "0.8.8"
+uuid = { version = "1.6.1", features = ["v4", "serde"] }
+
+[dev-dependencies]
+axum-macros = "0.4.0"
+
+[profile.fastcompile]
+inherits = "dev"
+opt-level = 0
+debug = true
+strip = "none"
+lto = "off"
+incremental = true
+codegen-units = 256
+
+[profile.fastrelease]
+inherits = "release"
+strip = true
+codegen-units = 1
+lto = "fat"
