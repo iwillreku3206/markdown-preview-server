@@ -9,6 +9,7 @@ impl NodeValue for InlinePageBreak {
     fn render(&self, node: &Node, fmt: &mut dyn Renderer) {
         let mut attrs = node.attrs.clone();
         attrs.push(("style", "page-break-after:always;break-after:page;".into()));
+		attrs.push(("class", "page-break".into()));
         fmt.open("div", &attrs);
 		fmt.close("div");
         fmt.cr();
