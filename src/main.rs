@@ -1,9 +1,12 @@
+use std::sync::Arc;
+
 use clap::Parser;
 use config::Config;
+use editor_connection::frame::editor::EditorFrame;
+use editor_connection::frame::server::ServerFrame;
 use editor_connection::{stdio::Stdio, EditorConnection};
+use server::web::listen_web;
 use server::Server;
-
-use crate::editor_connection::frame::Frame;
 
 pub mod args;
 pub mod config;
@@ -15,16 +18,20 @@ pub mod server;
 async fn main() {
     let args = args::Args::parse();
     let config = Config::load(&args).await;
-    let io = Stdio::new(|frame| {
-        println!("{:?}", frame.to_string());
+    let server = Arc::new(Server::new(config));
+
+    let server_clone = server.clone();
+    let io = Stdio::new(move |frame, io| match frame {
+        ServerFrame::Ping => io.send(EditorFrame::Pong),
+        _ => (),
     });
-    let server = Server::new(config);
+
     let _ = tokio::join!(
         tokio::spawn(async move {
             io.listen();
         }),
         tokio::spawn(async move {
-            server.listen_web().await;
+            listen_web(&server.config).await;
         })
     );
 }

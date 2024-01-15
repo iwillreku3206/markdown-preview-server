@@ -640,10 +640,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "gfm-autolinks"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e759407cedde28f2324a4ce9e1b309a5730b328985c2f5482d87fd3a75535d55"
+dependencies = [
+ "once_cell",
+ "unicode_categories",
+]
+
+[[package]]
 name = "gimli"
 version = "0.28.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4271d37baee1b8c7e4b708028c57d816cf9d2434acb33a549475f78c181f6253"
+
+[[package]]
+name = "github-slugger"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "721820f4eab1c427d482e144b63288754d9872fb7f0d72d73ab101008ef43147"
+dependencies = [
+ "once_cell",
+ "regex",
+]
 
 [[package]]
 name = "h2"
@@ -957,6 +977,78 @@ dependencies = [
 ]
 
 [[package]]
+name = "markdown-it-autolink"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "174c842c23decdaad9eb0a950758bdbeee0772e517c23f498bee9dba75244a0c"
+dependencies = [
+ "gfm-autolinks",
+ "markdown-it",
+]
+
+[[package]]
+name = "markdown-it-deflist"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0f76fc1fc9594f2f7bedce2d44c76df1ee3289d6e856300d2d48a7b02971e59e"
+dependencies = [
+ "markdown-it",
+]
+
+[[package]]
+name = "markdown-it-footnote"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e6679ab967fbc45b290b25fb477af7556bf6825feec208a970585e6bb9aae3be"
+dependencies = [
+ "markdown-it",
+]
+
+[[package]]
+name = "markdown-it-front-matter"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5181d76def41e21e40175078f3e4879d11f7ca93a2e781d69131f6648e4f5205"
+dependencies = [
+ "markdown-it",
+]
+
+[[package]]
+name = "markdown-it-gfm"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "04c64ba9a73203407a75a6c04ae6972c5c1e9f60518f82a010f186013ef27d5e"
+dependencies = [
+ "markdown-it",
+ "markdown-it-autolink",
+ "markdown-it-heading-anchors",
+ "markdown-it-tasklist",
+ "regex",
+]
+
+[[package]]
+name = "markdown-it-heading-anchors"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3c8c71a46fc41bf2fdac133c188c1477562b7bcd1be3981e84fc81cfc2e515fe"
+dependencies = [
+ "github-slugger",
+ "markdown-it",
+]
+
+[[package]]
+name = "markdown-it-tasklist"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c401c2e7cd96552a6da0eefc8024f9d9ec5afde9b2d6d3fee70f14a7ebafd496"
+dependencies = [
+ "markdown-it",
+ "once_cell",
+ "regex",
+ "stacker",
+]
+
+[[package]]
 name = "markdown-preview-server"
 version = "0.1.0"
 dependencies = [
@@ -969,6 +1061,13 @@ dependencies = [
  "katex",
  "log",
  "markdown-it",
+ "markdown-it-autolink",
+ "markdown-it-deflist",
+ "markdown-it-footnote",
+ "markdown-it-front-matter",
+ "markdown-it-gfm",
+ "markdown-it-heading-anchors",
+ "markdown-it-tasklist",
  "serde",
  "serde_json",
  "tokio",
@@ -1761,6 +1860,12 @@ name = "unicode-xid"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f962df74c8c05a667b5ee8bcf162993134c104e96440b663c8daa176dc772d8c"
+
+[[package]]
+name = "unicode_categories"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "39ec24b3121d976906ece63c9daad25b85969647682eee313cb5779fdd69e14e"
 
 [[package]]
 name = "utf8-width"

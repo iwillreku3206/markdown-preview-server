@@ -1,4 +1,5 @@
-Frames are seperated by newlines in the input stream. The first 2 bytes of each frame are the opcode. The following bytes are the payload.
+Frames are seperated by newlines in the input stream. The first 2 bytes of each
+frame are the opcode. The following bytes are the payload.
 
 The following opcodes are supported:
 
