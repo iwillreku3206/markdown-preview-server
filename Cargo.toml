@@ -2,15 +2,19 @@
 name = "markdown-preview-server"
 version = "0.1.0"
 edition = "2021"
+build = "build.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 askama = { version = "0.12.1", features = ["with-axum"] }
+askama_axum = "0.4.0"
 axum = "0.7.3"
+axum-macros = "0.4.1"
 clap = { version = "4.4.13", features = ["unicode", "derive"] }
 directories = "5.0.1"
 env_logger = "0.10.1"
+include_dir = "0.7.3"
 katex = "0.4.6"
 #lazy_static = "1.4.0"
 log = "0.4.20"
@@ -22,14 +26,12 @@ markdown-it-front-matter = "0.3.0"
 markdown-it-gfm = "0.1.0"
 markdown-it-heading-anchors = "0.3.0"
 markdown-it-tasklist = "0.2.0"
+mime_guess = "2.0.4"
 serde = "1.0.194"
 serde_json = "1.0.111"
 tokio = { version = "1.35.1", features = ["full"] }
 toml = "0.8.8"
 uuid = { version = "1.6.1", features = ["v4", "serde"] }
-
-[dev-dependencies]
-axum-macros = "0.4.0"
 
 [profile.fastcompile]
 inherits = "dev"
