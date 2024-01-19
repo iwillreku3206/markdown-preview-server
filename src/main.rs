@@ -13,12 +13,15 @@ pub mod config;
 pub mod editor_connection;
 pub mod error;
 pub mod server;
+pub mod viewer_connection;
 
 #[tokio::main]
 async fn main() {
+    env_logger::init();
+
     let args = args::Args::parse();
     let config = Config::load(&args).await;
-    let server = Arc::new(Server::new(config));
+    let server = Arc::new(Server::new(&args, config));
 
     let server_clone = server.clone();
     let io = Stdio::new(move |frame, io| match frame {
@@ -31,7 +34,7 @@ async fn main() {
             io.listen();
         }),
         tokio::spawn(async move {
-            listen_web(&server.config).await;
+            listen_web(server).await;
         })
     );
 }

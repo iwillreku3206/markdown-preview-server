@@ -1,34 +1,33 @@
 use std::collections::HashMap;
 
 use markdown_it::MarkdownIt;
+use tokio::sync::RwLock;
 use uuid::Uuid;
 
 pub mod editor;
 pub mod parser;
-pub mod state;
 pub mod web;
 
-use crate::config::Config;
+use crate::{args::Args, config::Config, viewer_connection::ViewerMap};
 
-use self::{editor::Editor, state::State};
+use self::editor::Editor;
 
 pub struct Server {
     pub compiler: MarkdownIt,
-    pub state: State,
     pub editors: HashMap<Uuid, Editor>,
+    pub viewers: ViewerMap,
     pub config: Config,
+    pub stdio: bool,
 }
 
 impl Server {
-    pub fn new(config: Config) -> Self {
+    pub fn new(args: &Args, config: Config) -> Self {
         Self {
             compiler: MarkdownIt::new(),
-            state: State::new(),
+            viewers: RwLock::new(HashMap::new()),
             editors: HashMap::new(),
             config,
+            stdio: args.stdio,
         }
-    }
-    pub fn _test_print_config(&self) {
-        println!("port: {:?}", self.config.web.port);
     }
 }

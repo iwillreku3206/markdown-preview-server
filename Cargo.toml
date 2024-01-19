@@ -9,11 +9,12 @@ build = "build.rs"
 [dependencies]
 askama = { version = "0.12.1", features = ["with-axum"] }
 askama_axum = "0.4.0"
-axum = "0.7.3"
+axum = { version = "0.7.3", features = ["ws"] }
 axum-macros = "0.4.1"
 clap = { version = "4.4.13", features = ["unicode", "derive"] }
 directories = "5.0.1"
 env_logger = "0.10.1"
+futures-util = "0.3.30"
 include_dir = "0.7.3"
 katex = "0.4.6"
 #lazy_static = "1.4.0"
