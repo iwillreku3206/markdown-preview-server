@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
 use markdown_it::MarkdownIt;
 use tokio::sync::RwLock;
@@ -8,7 +8,9 @@ pub mod editor;
 pub mod parser;
 pub mod web;
 
-use crate::{args::Args, config::Config, viewer_connection::ViewerMap};
+use crate::{
+    args::Args, config::Config, editor_connection::EditorConnection, viewer_connection::ViewerMap,
+};
 
 use self::editor::Editor;
 
@@ -18,16 +20,18 @@ pub struct Server {
     pub viewers: ViewerMap,
     pub config: Config,
     pub stdio: bool,
+    pub io: Arc<dyn EditorConnection>,
 }
 
 impl Server {
-    pub fn new(args: &Args, config: Config) -> Self {
+    pub fn new(args: &Args, config: Config, io: Arc<dyn EditorConnection>) -> Self {
         Self {
             compiler: MarkdownIt::new(),
             viewers: RwLock::new(HashMap::new()),
             editors: HashMap::new(),
             config,
             stdio: args.stdio,
+            io,
         }
     }
 }

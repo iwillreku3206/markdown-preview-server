@@ -5,6 +5,7 @@ use config::Config;
 use editor_connection::frame::editor::EditorFrame;
 use editor_connection::frame::server::ServerFrame;
 use editor_connection::{stdio::Stdio, EditorConnection};
+use futures_util::future::IntoFuture;
 use server::web::listen_web;
 use server::Server;
 
@@ -21,17 +22,27 @@ async fn main() {
 
     let args = args::Args::parse();
     let config = Config::load(&args).await;
-    let server = Arc::new(Server::new(&args, config));
 
-    let server_clone = server.clone();
-    let io = Stdio::new(move |frame, io| match frame {
-        ServerFrame::Ping => io.send(EditorFrame::Pong),
-        _ => (),
-    });
+    let io = Arc::new(Stdio::new());
+
+    let io_receive = io.receive_channel().clone();
+    let io_send = io.send_channel().clone();
+
+    let server = Arc::new(Server::new(&args, config, io.clone()));
 
     let _ = tokio::join!(
         tokio::spawn(async move {
-            io.listen();
+            while let Some(frame) = io_receive.lock().await.recv().await {
+                match frame {
+                    ServerFrame::Ping => {
+                        let _ = io_send.lock().await.send(EditorFrame::Pong);
+                    }
+                    _ => {}
+                };
+            }
+        }),
+        tokio::spawn(async move {
+            let _ = io.listen().await;
         }),
         tokio::spawn(async move {
             listen_web(server).await;

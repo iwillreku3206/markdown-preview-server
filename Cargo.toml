@@ -9,6 +9,7 @@ build = "build.rs"
 [dependencies]
 askama = { version = "0.12.1", features = ["with-axum"] }
 askama_axum = "0.4.0"
+async-trait = "0.1.77"
 axum = { version = "0.7.3", features = ["ws"] }
 axum-macros = "0.4.1"
 clap = { version = "4.4.13", features = ["unicode", "derive"] }
