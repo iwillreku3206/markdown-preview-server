@@ -45,7 +45,19 @@ impl Config {
         let config_file = try_load_config_file(config_dir);
 
         match config_file.await {
-            Ok(config) => config,
+            Ok(mut config) => {
+                config.editor.connection_type = match config.editor.connection_type {
+                    Some(connection_type) => Some(connection_type),
+                    None => {
+                        if args.stdio {
+                            Some(crate::editor_connection::EditorConnectionType::Stdio)
+                        } else {
+                            Some(crate::editor_connection::EditorConnectionType::WebSocket)
+                        }
+                    }
+                };
+                config
+            }
             Err(e) => {
                 warn!("Failed to load config file: {}", e);
                 Config::default()
@@ -53,4 +65,3 @@ impl Config {
         }
     }
 }
-

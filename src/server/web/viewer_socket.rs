@@ -1,45 +1,55 @@
-use std::{borrow::Cow, net::SocketAddr};
+use std::{net::SocketAddr, sync::Arc};
 
 use axum::{
     body::Body,
     extract::{
-        ws::{CloseFrame, Message, WebSocket},
-        ConnectInfo, WebSocketUpgrade,
+        ws::{Message, WebSocket},
+        ConnectInfo, State, WebSocketUpgrade,
     },
     http::Response,
 };
 use axum_macros::debug_handler;
 use futures_util::{SinkExt, StreamExt};
+use tokio::sync::Mutex;
+
+use crate::{server::Server, viewer_connection::Viewer};
 
 #[debug_handler]
 pub async fn viewer_socket_handler(
     ws: WebSocketUpgrade,
+    State(server): State<Arc<Server>>,
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
 ) -> Response<Body> {
-    println!("Viewer connected: {}", addr);
-    ws.on_upgrade(move |socket| handle_socket(socket, addr))
+    log::info!("Viewer connected: {}", addr);
+    ws.on_upgrade(move |socket| handle_socket(socket, addr, server))
 }
 
-async fn handle_socket(mut socket: WebSocket, who: SocketAddr) {
+async fn handle_socket(mut socket: WebSocket, who: SocketAddr, server: Arc<Server>) {
     //send a ping (unsupported by some browsers) just to kick things off and get a response
     if socket.send(Message::Ping(vec![1, 2, 3])).await.is_ok() {
-        println!("Pinged {who}...");
+        log::info!("Pinged {who}...");
     } else {
-        println!("Could not send ping {who}!");
+        log::info!("Could not send ping {who}!");
         return;
     }
 
-    let (mut sender, mut receiver) = socket.split();
+    let (sender, mut receiver) = socket.split();
 
-
-
-    let _ = tokio::spawn(async move {
+    let thread = tokio::spawn(async move {
         while let Some(Ok(msg)) = receiver.next().await {
-            println!("{:?}", msg);
+            log::info!("{:?}", msg);
         }
-    })
-    .await;
+    });
+
+    let viewer = Viewer {
+        addr: who,
+        connection: sender,
+    };
+
+    server.viewers.write().await.insert(who, Mutex::new(viewer));
+
+    thread.await.unwrap();
 
     // returning from the handler closes the websocket connection
-    println!("Websocket context {who} destroyed");
+    log::info!("Websocket context {who} destroyed");
 }

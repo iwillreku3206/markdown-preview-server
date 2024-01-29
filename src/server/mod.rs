@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, process, sync::Arc};
 
 use markdown_it::MarkdownIt;
 use tokio::sync::RwLock;
@@ -9,7 +9,13 @@ pub mod parser;
 pub mod web;
 
 use crate::{
-    args::Args, config::Config, editor_connection::EditorConnection, viewer_connection::ViewerMap,
+    args::Args,
+    config::Config,
+    editor_connection::{
+        self, frame::server::ServerFrame, generic::GenericEditorConnection, stdio::Stdio,
+        EditorConnection, EditorConnectionType,
+    },
+    viewer_connection::ViewerMap,
 };
 
 use self::editor::Editor;
@@ -23,8 +29,26 @@ pub struct Server {
     pub io: Arc<dyn EditorConnection>,
 }
 
+fn on_editor_close() {
+    process::exit(0);
+}
+
 impl Server {
-    pub fn new(args: &Args, config: Config, io: Arc<dyn EditorConnection>) -> Self {
+    pub fn new(args: &Args, config: Config) -> Self {
+        // we can unwrap here since the loader function will always return a connection type
+        let connection_type = config
+            .editor
+            .connection_type
+            .clone()
+            .unwrap_or(EditorConnectionType::Stdio);
+        let io: Arc<dyn EditorConnection> = match connection_type {
+            EditorConnectionType::Stdio => Arc::new(Stdio::new()),
+            EditorConnectionType::WebSocket => {
+                Arc::new(GenericEditorConnection::new(on_editor_close))
+            }
+            EditorConnectionType::SSH => Arc::new(GenericEditorConnection::new(on_editor_close)),
+        };
+
         Self {
             compiler: MarkdownIt::new(),
             viewers: RwLock::new(HashMap::new()),
@@ -33,5 +57,35 @@ impl Server {
             stdio: args.stdio,
             io,
         }
+    }
+
+    pub async fn on_frame(self: Arc<Server>, frame: ServerFrame) {
+        let io_send = self.io.send_channel().clone();
+        match frame {
+            editor_connection::frame::server::ServerFrame::Ping => {
+                let _ = io_send
+                    .lock()
+                    .await
+                    .send(editor_connection::frame::editor::EditorFrame::Pong)
+                    .await
+                    .unwrap();
+            }
+            _ => {}
+        };
+    }
+
+    pub async fn listen_io(&self, self_arc: Arc<Self>) {
+        let io_receive = self.io.receive_channel().clone();
+        let io = self.io.clone();
+        tokio::join!(
+            tokio::spawn(async move {
+                while let Some(frame) = io_receive.lock().await.recv().await {
+                    self_arc.clone().on_frame(frame).await;
+                }
+            }),
+            tokio::spawn(async move {
+                io.listen().await;
+            })
+        );
     }
 }

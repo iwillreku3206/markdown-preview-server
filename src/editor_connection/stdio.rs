@@ -1,11 +1,9 @@
-use std::{
-    io::{BufRead, BufReader},
-    process,
-    sync::Arc,
-};
+use std::{io::BufRead, process, sync::Arc};
 
 use async_trait::async_trait;
 use tokio::sync::{mpsc, Mutex};
+
+use std::io;
 
 use crate::editor_connection::frame::Frame;
 
@@ -19,8 +17,8 @@ pub struct Stdio {
 
 impl Stdio {
     pub fn new() -> Self {
-        let (mut send_editor, mut receive_editor) = mpsc::channel::<EditorFrame>(16);
-        let (mut send_server, mut receive_server) = mpsc::channel::<ServerFrame>(16);
+        let (send_editor, mut receive_editor) = mpsc::channel::<EditorFrame>(16);
+        let (send_server, receive_server) = mpsc::channel::<ServerFrame>(16);
 
         tokio::spawn(async move {
             // process incoming server frames here
@@ -40,15 +38,9 @@ impl Stdio {
 #[async_trait]
 impl EditorConnection for Stdio {
     async fn listen(&self) {
-        let stdin = std::io::stdin();
-        let mut reader = BufReader::new(stdin);
-        let mut buffer = Vec::new();
-        loop {
-            let bytes_read = reader.read_until(0x0a, &mut buffer).unwrap();
-            if bytes_read == 0 {
-                continue;
-            }
-            match parse_frame(&buffer) {
+        let mut buf = Vec::new();
+        while let Ok(_) = io::stdin().lock().read_until(b'\n', &mut buf) {
+            match parse_frame(&buf) {
                 Some(frame) => {
                     match frame {
                         ServerFrame::Close => break,
@@ -61,14 +53,13 @@ impl EditorConnection for Stdio {
                                     .await
                                     .send(frame)
                                     .await;
-                            }
-                            .await;
+                            };
                         }
                     };
                 }
                 None => (),
-            }
-            buffer.clear();
+            };
+            buf.clear();
         }
         // If stdio is closed, the process should end
         process::exit(0);
@@ -80,6 +71,14 @@ impl EditorConnection for Stdio {
 
     fn receive_channel(&self) -> Arc<Mutex<mpsc::Receiver<ServerFrame>>> {
         self.receive_channel.clone()
+    }
+
+    fn send_server_frame_channel(&self) -> Arc<Mutex<mpsc::Sender<ServerFrame>>> {
+        self.send_server_frame_channel.clone()
+    }
+
+    fn receive_editor_frame_channel(&self) -> Option<Arc<Mutex<mpsc::Receiver<EditorFrame>>>> {
+        None
     }
 
     fn close(&self) {

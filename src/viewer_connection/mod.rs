@@ -7,6 +7,6 @@ use tokio::sync::{RwLock, Mutex};
 pub type ViewerMap = RwLock<HashMap<SocketAddr, Mutex<Viewer>>>;
 
 pub struct Viewer {
-    addr: SocketAddr,
-    connection: SplitSink<WebSocket, Message>,
+    pub addr: SocketAddr,
+    pub connection: SplitSink<WebSocket, Message>,
 }
