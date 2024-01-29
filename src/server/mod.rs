@@ -73,19 +73,4 @@ impl Server {
             _ => {}
         };
     }
-
-    pub async fn listen_io(&self, self_arc: Arc<Self>) {
-        let io_receive = self.io.receive_channel().clone();
-        let io = self.io.clone();
-        tokio::join!(
-            tokio::spawn(async move {
-                while let Some(frame) = io_receive.lock().await.recv().await {
-                    self_arc.clone().on_frame(frame).await;
-                }
-            }),
-            tokio::spawn(async move {
-                io.listen().await;
-            })
-        );
-    }
 }

@@ -21,12 +21,20 @@ async fn main() {
 
     let server = Arc::new(Server::new(&args, config));
 
+    let io_receive = server.io.receive_channel();
+
     let server_io_clone = server.clone();
+    let server_io_receive_clone = server.clone();
     let server_web_clone = server.clone();
 
     let _ = tokio::join!(
         tokio::spawn(async move {
-            server_io_clone.listen_io(server_io_clone.clone()).await;
+            server_io_clone.io.listen().await;
+        }),
+        tokio::spawn(async move {
+            while let Some(frame) = io_receive.lock().await.recv().await {
+                server_io_receive_clone.clone().on_frame(frame).await;
+            }
         }),
         tokio::spawn(async move {
             listen_web(server_web_clone).await;
