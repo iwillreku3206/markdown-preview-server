@@ -1,6 +1,6 @@
 use std::{net::SocketAddr, sync::Arc};
 
-use axum::{routing, Router};
+use axum::{extract::connect_info::IntoMakeServiceWithConnectInfo, routing, Router};
 use tokio::net::TcpListener;
 
 pub mod editor_socket;
@@ -35,6 +35,7 @@ pub async fn listen_web(server: Arc<Server>) {
         let listener = TcpListener::bind(format!("{}:{}", host, port))
             .await
             .unwrap();
+		router = IntoMakeServiceWithConnectInfo::new(router);
         axum::serve(
             listener,
             router.into_make_service_with_connect_info::<SocketAddr>(),

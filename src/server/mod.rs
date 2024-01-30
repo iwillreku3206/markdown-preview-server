@@ -22,7 +22,7 @@ use self::editor::Editor;
 
 pub struct Server {
     pub compiler: MarkdownIt,
-    pub editors: HashMap<Uuid, Editor>,
+    //pub editors: HashMap<Uuid, Editor>,
     pub viewers: ViewerMap,
     pub config: Config,
     pub stdio: bool,
@@ -52,7 +52,7 @@ impl Server {
         Self {
             compiler: MarkdownIt::new(),
             viewers: RwLock::new(HashMap::new()),
-            editors: HashMap::new(),
+            //editors: HashMap::new(),
             config,
             stdio: args.stdio,
             io,
