@@ -27,18 +27,17 @@ pub async fn listen_web(server: Arc<Server>) {
                 routing::get(static_dir::static_dir_handler),
             )
             .route("/viewer", routing::get(viewer_socket_handler))
-            .route("/content", routing::get(content_handler))
-            .with_state(server.clone());
+            .route("/content", routing::get(content_handler));
         if !server.stdio {
             router = router.route("/editor", routing::get(editor_socket_handler));
         }
+        let router_with_state = router.with_state(server.clone());
         let listener = TcpListener::bind(format!("{}:{}", host, port))
             .await
             .unwrap();
-		router = IntoMakeServiceWithConnectInfo::new(router);
         axum::serve(
             listener,
-            router.into_make_service_with_connect_info::<SocketAddr>(),
+            router_with_state.into_make_service_with_connect_info::<SocketAddr>(),
         )
         .await
         .unwrap();

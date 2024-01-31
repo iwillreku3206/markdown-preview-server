@@ -38,11 +38,11 @@ async fn handle_socket(mut socket: WebSocket, who: SocketAddr, server: Arc<Serve
     let (mut sender, mut receiver) = socket.split();
 
     let server_clone = server.clone();
-    tokio::join!(
+    let _ = tokio::join!(
         tokio::spawn(async move {
             while let Some(Ok(msg)) = receiver.next().await {
                 if let Some(frame) = parse_frame(msg.into_data().as_slice()) {
-                    server_clone.clone().on_frame(frame);
+                    server_clone.clone().on_frame(frame).await;
                 }
             }
         }),
