@@ -6,8 +6,16 @@ pub struct Args {
     /// Path for configuration file
     #[arg(short, long)]
     pub config: Option<String>,
-	
-	/// Use stdio
+
+    /// Use stdio
+    #[arg(long, default_value_t = false)]
+    pub stdio: bool,
+
+	/// Prints loaded configuration
 	#[arg(long, default_value_t = false)]
-	pub stdio: bool
+	pub print_config: bool,
+
+    /// Generate default configuration file
+    #[arg(long, default_value_t = false)]
+    pub generate_default_config: bool,
 }

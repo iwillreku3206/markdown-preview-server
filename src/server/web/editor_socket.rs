@@ -54,6 +54,7 @@ async fn handle_socket(mut socket: WebSocket, who: SocketAddr, server: Arc<Serve
                     };
                 }
             }
+            println!("0");
         }),
         tokio::spawn(async move {
             if let Some(channel) = server.io.receive_editor_frame_channel() {
@@ -64,6 +65,8 @@ async fn handle_socket(mut socket: WebSocket, who: SocketAddr, server: Arc<Serve
                     }
                 }
             }
+		println!("{:?}", server.io);
+            println!("1");
         })
     );
 

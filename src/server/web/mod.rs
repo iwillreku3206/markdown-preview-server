@@ -1,12 +1,14 @@
 use std::{net::SocketAddr, sync::Arc};
 
-use axum::{extract::connect_info::IntoMakeServiceWithConnectInfo, routing, Router};
+use axum::{routing, Router};
 use tokio::net::TcpListener;
 
 pub mod editor_socket;
 pub mod static_dir;
 pub mod viewer_socket;
 pub mod views;
+
+use crate::editor_connection::EditorConnectionType;
 
 use self::{
     editor_socket::editor_socket_handler,
@@ -28,7 +30,7 @@ pub async fn listen_web(server: Arc<Server>) {
             )
             .route("/viewer", routing::get(viewer_socket_handler))
             .route("/content", routing::get(content_handler));
-        if !server.stdio {
+        if let Some(EditorConnectionType::WebSocket) = server.config.editor.connection_type {
             router = router.route("/editor", routing::get(editor_socket_handler));
         }
         let router_with_state = router.with_state(server.clone());

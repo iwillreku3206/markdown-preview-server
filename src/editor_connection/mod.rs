@@ -25,7 +25,7 @@ pub enum EditorConnectionType {
 }
 
 #[async_trait]
-pub trait EditorConnection: Send + Sync {
+pub trait EditorConnection: Send + Sync + std::fmt::Debug {
     async fn listen(&self);
     fn send_channel(&self) -> Arc<Mutex<mpsc::Sender<EditorFrame>>>;
     fn receive_channel(&self) -> Arc<Mutex<mpsc::Receiver<ServerFrame>>>;

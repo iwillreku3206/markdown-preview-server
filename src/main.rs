@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use clap::Parser;
 use config::Config;
+use generate_defaults::generate_defaults;
 use server::web::listen_web;
 use server::Server;
 
@@ -9,6 +10,7 @@ pub mod args;
 pub mod config;
 pub mod editor_connection;
 pub mod error;
+pub mod generate_defaults;
 pub mod server;
 pub mod viewer_connection;
 
@@ -17,7 +19,13 @@ async fn main() {
     env_logger::init();
 
     let args = args::Args::parse();
+    generate_defaults(&args);
+
     let config = Config::load(&args).await;
+    if args.print_config {
+        println!("{:#?}", config);
+        std::process::exit(0);
+    }
 
     let server = Arc::new(Server::new(&args, config));
 

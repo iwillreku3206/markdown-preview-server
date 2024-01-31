@@ -1,10 +1,11 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use directories::BaseDirs;
 use log::warn;
 
 use crate::{
     args::Args,
+    editor_connection::EditorConnectionType,
     error::{config::NoConfigFileError, AnyError, FileNotFoundError},
 };
 
@@ -12,14 +13,13 @@ use super::Config;
 
 async fn try_load_config_file(config_dir_str: Option<String>) -> Result<Config, AnyError> {
     let config_dir_str = config_dir_str.ok_or(NoConfigFileError {})?;
-    let config_dir = Path::new(&config_dir_str);
-    let config_file = config_dir.join("markdown-preview-server/config.toml");
-    if config_file.exists() {
-        let config_str = tokio::fs::read_to_string(config_file).await?;
+    let config_dir = Path::new(&config_dir_str).to_owned();
+    if config_dir.exists() {
+        let config_str = tokio::fs::read_to_string(config_dir).await?;
         Ok(toml::from_str::<Config>(&config_str)?)
     } else {
         Err(Box::new(FileNotFoundError {
-            path: config_file.to_str().unwrap_or_default().to_string(),
+            path: config_dir.to_str().unwrap_or_default().to_string(),
         }))
     }
 }
@@ -27,15 +27,25 @@ async fn try_load_config_file(config_dir_str: Option<String>) -> Result<Config, 
 impl Config {
     pub async fn load(args: &Args) -> Config {
         let config_dir = if let Some(config_dir) = &args.config {
-            Some(config_dir.to_string())
+            if let Ok(path) = PathBuf::from(config_dir).canonicalize() {
+                Some(path.to_str().unwrap_or_default().to_string())
+            } else {
+                None
+            }
         } else {
             if let Some(base_dirs) = BaseDirs::new() {
                 Some(
-                    base_dirs
-                        .config_dir()
-                        .to_str()
-                        .unwrap_or_default()
-                        .to_string(),
+                    PathBuf::from(
+                        base_dirs
+                            .config_dir()
+                            .to_str()
+                            .unwrap_or_default()
+                            .to_string(),
+                    )
+                    .join("markdown-preview-server/config.toml")
+                    .to_str()
+                    .unwrap_or_default()
+                    .to_string(),
                 )
             } else {
                 None
@@ -46,16 +56,9 @@ impl Config {
 
         match config_file.await {
             Ok(mut config) => {
-                config.editor.connection_type = match config.editor.connection_type {
-                    Some(connection_type) => Some(connection_type),
-                    None => {
-                        if args.stdio {
-                            Some(crate::editor_connection::EditorConnectionType::Stdio)
-                        } else {
-                            Some(crate::editor_connection::EditorConnectionType::WebSocket)
-                        }
-                    }
-                };
+                if args.stdio {
+                    config.editor.connection_type = Some(EditorConnectionType::Stdio);
+                }
                 config
             }
             Err(e) => {

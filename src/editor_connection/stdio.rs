@@ -9,6 +9,7 @@ use crate::editor_connection::frame::Frame;
 
 use super::{frame::server::ServerFrame, parse_frame::parse_frame, EditorConnection, EditorFrame};
 
+#[derive(Debug)]
 pub struct Stdio {
     send_channel: Arc<Mutex<mpsc::Sender<EditorFrame>>>,
     receive_channel: Arc<Mutex<mpsc::Receiver<ServerFrame>>>,

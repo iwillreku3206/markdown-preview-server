@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{fmt::Debug, sync::Arc};
 
 use async_trait::async_trait;
 use tokio::sync::{mpsc, Mutex};
@@ -14,6 +14,20 @@ pub struct GenericEditorConnection {
     send_server_frame_channel: Arc<Mutex<mpsc::Sender<ServerFrame>>>,
     receive_editor_frame_channel: Arc<Mutex<mpsc::Receiver<EditorFrame>>>,
     close_callback: Option<Box<dyn Fn() + Send + Sync>>,
+}
+
+impl Debug for GenericEditorConnection {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("GenericEditorConnection")
+            .field("send_channel", &self.send_channel)
+            .field("receive_channel", &self.receive_channel)
+            .field("send_server_frame_channel", &self.send_server_frame_channel)
+            .field(
+                "receive_editor_frame_channel",
+                &self.receive_editor_frame_channel,
+            )
+            .finish()
+    }
 }
 
 #[async_trait]

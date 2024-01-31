@@ -42,7 +42,7 @@ pub struct EditorConfig {
 impl Default for EditorConfig {
     fn default() -> Self {
         Self {
-            connection_type: None, // handle default in loader function
+            connection_type: Some(EditorConnectionType::Stdio)
         }
     }
 }
