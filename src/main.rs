@@ -13,6 +13,7 @@ pub mod error;
 pub mod generate_defaults;
 pub mod server;
 pub mod viewer_connection;
+pub mod markdown_extensions;
 
 #[tokio::main]
 async fn main() {

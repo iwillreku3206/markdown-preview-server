@@ -5,7 +5,7 @@ use tokio::sync::{mpsc, Mutex};
 
 use async_trait::async_trait;
 
-use self::frame::{editor::EditorFrame, server::ServerFrame};
+use self::frame::{editor::EditorFrame, server::EditorServerFrame};
 
 pub mod frame;
 pub mod generic;
@@ -28,8 +28,8 @@ pub enum EditorConnectionType {
 pub trait EditorConnection: Send + Sync + std::fmt::Debug {
     async fn listen(&self);
     fn send_channel(&self) -> Arc<Mutex<mpsc::Sender<EditorFrame>>>;
-    fn receive_channel(&self) -> Arc<Mutex<mpsc::Receiver<ServerFrame>>>;
-    fn send_server_frame_channel(&self) -> Arc<Mutex<mpsc::Sender<ServerFrame>>>;
+    fn receive_channel(&self) -> Arc<Mutex<mpsc::Receiver<EditorServerFrame>>>;
+    fn send_server_frame_channel(&self) -> Arc<Mutex<mpsc::Sender<EditorServerFrame>>>;
     fn receive_editor_frame_channel(&self) -> Option<Arc<Mutex<mpsc::Receiver<EditorFrame>>>>;
     fn close(&self);
 }

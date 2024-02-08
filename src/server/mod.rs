@@ -2,7 +2,6 @@ use std::{collections::HashMap, process, sync::Arc};
 
 use markdown_it::MarkdownIt;
 use tokio::sync::RwLock;
-use uuid::Uuid;
 
 pub mod editor;
 pub mod parser;
@@ -12,10 +11,10 @@ use crate::{
     args::Args,
     config::Config,
     editor_connection::{
-        self, frame::server::ServerFrame, generic::GenericEditorConnection, stdio::Stdio,
+        self, frame::server::EditorServerFrame, generic::GenericEditorConnection, stdio::Stdio,
         EditorConnection, EditorConnectionType,
     },
-    viewer_connection::ViewerMap,
+    viewer_connection::{frame::server::ViewerServerFrame, ViewerMap},
 };
 
 pub struct Server {
@@ -27,9 +26,7 @@ pub struct Server {
     pub io: Arc<dyn EditorConnection>,
 }
 
-fn on_editor_close() {
-    process::exit(0);
-}
+fn on_editor_close() {}
 
 impl Server {
     pub fn new(args: &Args, config: Config) -> Self {
@@ -56,10 +53,10 @@ impl Server {
         }
     }
 
-    pub async fn on_frame(self: Arc<Server>, frame: ServerFrame) {
+    pub async fn on_frame(self: Arc<Server>, frame: EditorServerFrame) {
         let io_send = self.io.send_channel().clone();
         match frame {
-            editor_connection::frame::server::ServerFrame::Ping => {
+            EditorServerFrame::Ping => {
                 let _ = io_send
                     .lock()
                     .await

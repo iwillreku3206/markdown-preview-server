@@ -1,19 +1,19 @@
-use super::frame::server::ServerFrame;
+use super::frame::server::EditorServerFrame;
 
-pub fn parse_frame(frame: &[u8]) -> Option<ServerFrame> {
+pub fn parse_frame(frame: &[u8]) -> Option<EditorServerFrame> {
     if frame.len() < 2 {
         return None;
     }
 
     let frame_type: u16 = ((frame[0] as u16) << 8) | (frame[1] as u16);
     match frame_type {
-        0x0001 => Some(ServerFrame::Ping),
-        0x0002 => Some(ServerFrame::Pong),
+        0x0001 => Some(EditorServerFrame::Ping),
+        0x0002 => Some(EditorServerFrame::Pong),
         0x0100 => {
             let str = String::from_utf8(frame[2..].to_vec()).ok();
 
             match str {
-                Some(s) => Some(ServerFrame::SetText(s)),
+                Some(s) => Some(EditorServerFrame::SetText(s)),
                 None => None,
             }
         }
@@ -21,7 +21,7 @@ pub fn parse_frame(frame: &[u8]) -> Option<ServerFrame> {
             let str = String::from_utf8(frame[2..].to_vec()).ok();
 
             match str {
-                Some(s) => Some(ServerFrame::SetDocumentTitle(s)),
+                Some(s) => Some(EditorServerFrame::SetDocumentTitle(s)),
                 None => None,
             }
         }
@@ -29,11 +29,11 @@ pub fn parse_frame(frame: &[u8]) -> Option<ServerFrame> {
             let str = String::from_utf8(frame[2..].to_vec()).ok();
 
             match str {
-                Some(s) => Some(ServerFrame::SetFilePath(s)),
+                Some(s) => Some(EditorServerFrame::SetFilePath(s)),
                 None => None,
             }
         }
-        0xffff => Some(ServerFrame::Close),
+        0xffff => Some(EditorServerFrame::Close),
         _ => None,
     }
 }

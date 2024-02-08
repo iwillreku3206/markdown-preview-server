@@ -25,7 +25,7 @@ pub async fn listen_web(server: Arc<Server>) {
         let mut router = Router::new()
             .route("/", routing::get(index_handler))
             .route(
-                "/static/:path",
+                "/static/*path",
                 routing::get(static_dir::static_dir_handler),
             )
             .route("/viewer", routing::get(viewer_socket_handler))

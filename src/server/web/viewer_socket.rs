@@ -48,7 +48,28 @@ async fn handle_socket(mut socket: WebSocket, who: SocketAddr, server: Arc<Serve
 
     server.viewers.write().await.insert(who, Mutex::new(viewer));
 
+    for viewer in server.viewers.read().await.iter() {
+        viewer
+            .1
+            .lock()
+            .await
+            .connection
+            .send(Message::Text("Hello, viewer!".into()))
+            .await
+            .unwrap();
+        viewer
+            .1
+            .lock()
+            .await
+            .connection
+            .send(Message::Binary(b"Hello, viewer!".into()))
+            .await
+            .unwrap();
+    }
+
     thread.await.unwrap();
+
+    server.viewers.write().await.remove(&who);
 
     // returning from the handler closes the websocket connection
     log::info!("Websocket context {who} destroyed");

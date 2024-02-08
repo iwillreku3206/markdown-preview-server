@@ -20,8 +20,6 @@ impl Parser {
         markdown_it_footnote::add(mdit_mut);
         markdown_it_deflist::add(mdit_mut);
 
-		
-
         Self { mdit }
     }
 

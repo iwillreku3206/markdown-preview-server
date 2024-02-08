@@ -7,19 +7,19 @@ use std::io;
 
 use crate::editor_connection::frame::Frame;
 
-use super::{frame::server::ServerFrame, parse_frame::parse_frame, EditorConnection, EditorFrame};
+use super::{frame::server::EditorServerFrame, parse_frame::parse_frame, EditorConnection, EditorFrame};
 
 #[derive(Debug)]
 pub struct Stdio {
     send_channel: Arc<Mutex<mpsc::Sender<EditorFrame>>>,
-    receive_channel: Arc<Mutex<mpsc::Receiver<ServerFrame>>>,
-    send_server_frame_channel: Arc<Mutex<mpsc::Sender<ServerFrame>>>,
+    receive_channel: Arc<Mutex<mpsc::Receiver<EditorServerFrame>>>,
+    send_server_frame_channel: Arc<Mutex<mpsc::Sender<EditorServerFrame>>>,
 }
 
 impl Stdio {
     pub fn new() -> Self {
         let (send_editor, mut receive_editor) = mpsc::channel::<EditorFrame>(16);
-        let (send_server, receive_server) = mpsc::channel::<ServerFrame>(16);
+        let (send_server, receive_server) = mpsc::channel::<EditorServerFrame>(16);
 
         tokio::spawn(async move {
             // process incoming server frames here
@@ -44,7 +44,7 @@ impl EditorConnection for Stdio {
             match parse_frame(&buf) {
                 Some(frame) => {
                     match frame {
-                        ServerFrame::Close => break,
+                        EditorServerFrame::Close => break,
                         _ => {
                             println!("frame: {}", frame.to_string());
                             let _ = async {
@@ -70,11 +70,11 @@ impl EditorConnection for Stdio {
         self.send_channel.clone()
     }
 
-    fn receive_channel(&self) -> Arc<Mutex<mpsc::Receiver<ServerFrame>>> {
+    fn receive_channel(&self) -> Arc<Mutex<mpsc::Receiver<EditorServerFrame>>> {
         self.receive_channel.clone()
     }
 
-    fn send_server_frame_channel(&self) -> Arc<Mutex<mpsc::Sender<ServerFrame>>> {
+    fn send_server_frame_channel(&self) -> Arc<Mutex<mpsc::Sender<EditorServerFrame>>> {
         self.send_server_frame_channel.clone()
     }
 

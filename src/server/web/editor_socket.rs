@@ -29,9 +29,9 @@ pub async fn editor_socket_handler(
 async fn handle_socket(mut socket: WebSocket, who: SocketAddr, server: Arc<Server>) {
     //send a ping (unsupported by some browsers) just to kick things off and get a response
     if socket.send(Message::Ping(vec![1, 2, 3])).await.is_ok() {
-        println!("Pinged {who}...");
+        log::info!("Pinged {who}...");
     } else {
-        println!("Could not send ping {who}!");
+        log::error!("Could not send ping {who}!");
         return;
     }
 
@@ -54,19 +54,16 @@ async fn handle_socket(mut socket: WebSocket, who: SocketAddr, server: Arc<Serve
                     };
                 }
             }
-            println!("0");
         }),
         tokio::spawn(async move {
             if let Some(channel) = server.io.receive_editor_frame_channel() {
                 while let Ok(frame) = channel.lock().await.try_recv() {
                     if let Err(e) = sender.send(Message::Binary(frame.to_vec())).await {
-                        println!("Error sending frame to editor: {}", e);
+                        log::error!("Error sending frame to editor: {}", e);
                         break;
                     }
                 }
             }
-		println!("{:?}", server.io);
-            println!("1");
         })
     );
 

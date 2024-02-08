@@ -2,7 +2,10 @@ use std::{collections::HashMap, net::SocketAddr};
 
 use axum::extract::ws::{Message, WebSocket};
 use futures_util::stream::SplitSink;
-use tokio::sync::{RwLock, Mutex};
+use tokio::sync::{Mutex, RwLock};
+
+pub mod frame;
+pub mod parse_frame;
 
 pub type ViewerMap = RwLock<HashMap<SocketAddr, Mutex<Viewer>>>;
 
