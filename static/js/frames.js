@@ -21,7 +21,9 @@ const w = window;
  *  @param {ArrayBuffer} buf 
  */
 export function onMessage(buf) {
+  buf = new Uint8Array(buf)
   const opcode = buf[0] << 8 | buf[1]
+  console.log(opcode)
   if (opcode in opcodeHandlers) {
     opcodeHandlers[opcode](buf)
   }

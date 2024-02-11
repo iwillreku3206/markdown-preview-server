@@ -5,6 +5,8 @@
  * @typedef {Window & Globals} ExtendedWindow
  */
 
+import { onMessage } from "./frames.js";
+
 /** @type {ExtendedWindow} */
 const w = window; // for jsdoc
 
@@ -21,5 +23,6 @@ w.socket.addEventListener('message', async (event) => {
     } else {
       var buf = event.data;
     }
+    onMessage(buf);
   }
 })

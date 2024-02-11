@@ -1,5 +1,7 @@
 use markdown_it::MarkdownIt;
 
+use crate::markdown_extensions::katex;
+
 pub struct Parser {
     mdit: MarkdownIt,
 }
@@ -19,6 +21,8 @@ impl Parser {
         markdown_it_front_matter::add(mdit_mut);
         markdown_it_footnote::add(mdit_mut);
         markdown_it_deflist::add(mdit_mut);
+
+		katex::add(mdit_mut);
 
         Self { mdit }
     }

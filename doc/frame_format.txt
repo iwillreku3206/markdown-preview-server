@@ -17,3 +17,27 @@ Editor to server:
 0x0101: Set document title
 0x0102: Set file path
 0xffff: Close
+
+For viewers, a frame is a single WebSocket binary message. Like the editor
+frames, the first 2 bytes are the opcode. The following bytes are the payload.
+
+The following opcodes are supported:
+
+Server to viewer:
+
+0x0001: Ping
+0x0002: Pong
+0x0100: Set text
+0x0101: Set document title
+0x0102: Set file path
+0x0103: Set cursor position (UNUSED FOR NOW)
+0xffff: Close
+
+Viewer to server:
+
+0x0001: Ping
+0x0002: Pong
+0xffff: Close
+
+
+All numbers are in little-endian byte order.

@@ -1,5 +1,7 @@
-use std::{collections::HashMap, process, sync::Arc};
+use std::{borrow::Borrow, collections::HashMap, process, sync::Arc};
 
+use axum::extract::ws::Message;
+use futures_util::SinkExt;
 use markdown_it::MarkdownIt;
 use tokio::sync::RwLock;
 
@@ -11,10 +13,16 @@ use crate::{
     args::Args,
     config::Config,
     editor_connection::{
-        self, frame::server::EditorServerFrame, generic::GenericEditorConnection, stdio::Stdio,
+        self,
+        frame::{server::EditorServerFrame, Frame},
+        generic::GenericEditorConnection,
+        stdio::Stdio,
         EditorConnection, EditorConnectionType,
     },
-    viewer_connection::{frame::server::ViewerServerFrame, ViewerMap},
+    viewer_connection::{
+        frame::{server::ViewerServerFrame, viewer::ViewerFrame},
+        ViewerMap,
+    },
 };
 
 pub struct Server {
@@ -63,6 +71,17 @@ impl Server {
                     .send(editor_connection::frame::editor::EditorFrame::Pong)
                     .await
                     .unwrap();
+            }
+            EditorServerFrame::SetText(text) => {
+                let html = self.compiler.parse(&text).render();
+
+                for (_who, viewer) in self.viewers.read().await.iter() {
+                    viewer
+                        .lock()
+                        .await
+                        .connection
+                        .send(Message::Binary(ViewerFrame::SetText(html.clone()).to_vec())).await.unwrap();
+                }
             }
             _ => {}
         };
