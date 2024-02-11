@@ -46,9 +46,11 @@ impl BlockRule for KatexBlockScanner {
     fn run(
         state: &mut markdown_it::parser::block::BlockState,
     ) -> Option<(markdown_it::Node, usize)> {
-        if state.get_line(state.line).get(0..1).unwrap_or_default() != "$$" {
+        if state.get_line(state.line).get(0..2).unwrap_or_default() != "$$" {
             return None;
         }
+
+        println!("found katex");
 
         let start = state.line;
         let mut current_line = start;
@@ -57,7 +59,7 @@ impl BlockRule for KatexBlockScanner {
 
         while current_line < state.line_max {
             let line = state.get_line(current_line);
-            if line.get(0..1).unwrap_or_default() == "$$" {
+            if line.get(0..2).unwrap_or_default() == "$$" {
                 let (latex, _) = state.get_lines(start + 1, current_line, 0, false);
                 let node = KatexBlock {
                     latex,
