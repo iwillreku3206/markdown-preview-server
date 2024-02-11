@@ -18,4 +18,7 @@ pub struct Args {
     /// Generate default configuration file
     #[arg(long, default_value_t = false)]
     pub generate_default_config: bool,
+
+	#[arg(long)]
+	pub compile_file: Option<String>,
 }

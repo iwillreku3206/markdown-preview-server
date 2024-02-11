@@ -7,13 +7,14 @@ use server::web::listen_web;
 use server::Server;
 
 pub mod args;
+pub mod cli_compile;
 pub mod config;
 pub mod editor_connection;
 pub mod error;
 pub mod generate_defaults;
+pub mod markdown_extensions;
 pub mod server;
 pub mod viewer_connection;
-pub mod markdown_extensions;
 
 #[tokio::main]
 async fn main() {
@@ -26,6 +27,10 @@ async fn main() {
     if args.print_config {
         println!("{:#?}", config);
         std::process::exit(0);
+    }
+
+    if let Some(ref path) = args.compile_file {
+        return cli_compile::cli_compile(&path, &args, config);
     }
 
     let server = Arc::new(Server::new(&args, config));

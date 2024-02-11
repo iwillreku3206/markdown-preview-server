@@ -25,8 +25,10 @@ use crate::{
     },
 };
 
+use self::parser::Parser;
+
 pub struct Server {
-    pub compiler: MarkdownIt,
+    pub compiler: Parser,
     //pub editors: HashMap<Uuid, Editor>,
     pub viewers: ViewerMap,
     pub config: Config,
@@ -53,7 +55,7 @@ impl Server {
         };
 
         Self {
-            compiler: MarkdownIt::new(),
+            compiler: Parser::new(),
             viewers: RwLock::new(HashMap::new()),
             config,
             stdio: args.stdio,
@@ -73,14 +75,16 @@ impl Server {
                     .unwrap();
             }
             EditorServerFrame::SetText(text) => {
-                let html = self.compiler.parse(&text).render();
+                let html = self.compiler.parse(&text);
 
                 for (_who, viewer) in self.viewers.read().await.iter() {
                     viewer
                         .lock()
                         .await
                         .connection
-                        .send(Message::Binary(ViewerFrame::SetText(html.clone()).to_vec())).await.unwrap();
+                        .send(Message::Binary(ViewerFrame::SetText(html.clone()).to_vec()))
+                        .await
+                        .unwrap();
                 }
             }
             _ => {}
