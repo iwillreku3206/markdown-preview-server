@@ -7,7 +7,9 @@ use std::io;
 
 use crate::editor_connection::frame::Frame;
 
-use super::{frame::server::EditorServerFrame, parse_frame::parse_frame, EditorConnection, EditorFrame};
+use super::{
+    frame::server::EditorServerFrame, parse_frame::parse_frame, EditorConnection, EditorFrame,
+};
 
 #[derive(Debug)]
 pub struct Stdio {
@@ -24,7 +26,7 @@ impl Stdio {
         tokio::spawn(async move {
             // process incoming server frames here
             while let Some(frame) = receive_editor.recv().await {
-                println!("{}", frame.to_string());
+                // println!("{}", frame.to_string());
             }
         });
 
@@ -46,7 +48,7 @@ impl EditorConnection for Stdio {
                     match frame {
                         EditorServerFrame::Close => break,
                         _ => {
-                            println!("frame: {}", frame.to_string());
+                            // println!("frame: {}", frame.to_string());
                             let _ = async {
                                 let _ = &self
                                     .send_server_frame_channel

@@ -50,8 +50,6 @@ impl BlockRule for KatexBlockScanner {
             return None;
         }
 
-        println!("found katex");
-
         let start = state.line;
         let mut current_line = start;
 

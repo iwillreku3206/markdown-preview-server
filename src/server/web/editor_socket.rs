@@ -22,7 +22,7 @@ pub async fn editor_socket_handler(
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
     State(server): State<Arc<Server>>,
 ) -> Response<Body> {
-    println!("Viewer connected: {}", addr);
+    log::info!("Editor connected: {}", addr);
     ws.on_upgrade(move |socket| handle_socket(socket, addr, server))
 }
 
@@ -68,5 +68,5 @@ async fn handle_socket(mut socket: WebSocket, who: SocketAddr, server: Arc<Serve
     );
 
     // returning from the handler closes the websocket connection
-    println!("Websocket context {who} destroyed");
+    log::info!("Websocket context {who} destroyed");
 }
