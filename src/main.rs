@@ -17,6 +17,7 @@ pub mod generate_defaults;
 pub mod markdown_extensions;
 pub mod server;
 pub mod viewer_connection;
+pub mod util;
 
 #[tokio::main]
 async fn main() {

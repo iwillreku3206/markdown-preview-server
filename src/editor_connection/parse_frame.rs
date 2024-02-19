@@ -1,3 +1,5 @@
+use crate::util::ipc_replace_special_chars::ipc_replace_special_chars;
+
 use super::frame::server::EditorServerFrame;
 
 pub fn parse_frame(frame: &[u8]) -> Option<EditorServerFrame> {
@@ -10,28 +12,19 @@ pub fn parse_frame(frame: &[u8]) -> Option<EditorServerFrame> {
         0x0001 => Some(EditorServerFrame::Ping),
         0x0002 => Some(EditorServerFrame::Pong),
         0x0100 => {
-            let str = String::from_utf8(frame[2..].to_vec()).ok();
+            let str = ipc_replace_special_chars(&frame[2..]);
 
-            match str {
-                Some(s) => Some(EditorServerFrame::SetText(s)),
-                None => None,
-            }
+            Some(EditorServerFrame::SetText(str))
         }
         0x0101 => {
-            let str = String::from_utf8(frame[2..].to_vec()).ok();
+            let str = ipc_replace_special_chars(&frame[2..]);
 
-            match str {
-                Some(s) => Some(EditorServerFrame::SetDocumentTitle(s)),
-                None => None,
-            }
+            Some(EditorServerFrame::SetDocumentTitle(str))
         }
         0x0102 => {
-            let str = String::from_utf8(frame[2..].to_vec()).ok();
+            let str = ipc_replace_special_chars(&frame[2..]);
 
-            match str {
-                Some(s) => Some(EditorServerFrame::SetFilePath(s)),
-                None => None,
-            }
+            Some(EditorServerFrame::SetFilePath(str))
         }
         0xffff => Some(EditorServerFrame::Close),
         _ => None,
