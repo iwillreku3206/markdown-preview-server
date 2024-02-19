@@ -42,12 +42,15 @@ async fn handle_socket(mut socket: WebSocket, who: SocketAddr, server: Arc<Serve
         tokio::spawn(async move {
             while let Some(Ok(msg)) = receiver.next().await {
                 if let Some(frame) = parse_frame(msg.into_data().as_slice()) {
-                    server_clone
+                    match server_clone
                         .io
                         .send_server_frame_channel()
                         .lock()
                         .await
-                        .send(frame);
+                        .send(frame) {
+						Ok(_) => (),
+						Err(_) => break,
+		}
                 }
             }
         }),

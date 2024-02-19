@@ -1,10 +1,10 @@
 use std::sync::Arc;
 
-use crate::editor_connection::frame::server::EditorServerFrame;
+
 use crate::editor_connection::frame::Frame;
 use clap::Parser;
 use config::Config;
-use futures_util::{SinkExt, StreamExt};
+
 use generate_defaults::generate_defaults;
 use server::web::listen_web;
 use server::Server;
@@ -48,7 +48,7 @@ async fn main() {
         }),
         tokio::spawn(async move {
             let io_receive = server_io_receive_clone.io.receive_channel();
-            let mut channel_lock = io_receive.lock().await;
+            let channel_lock = io_receive.lock().await;
 
             while let Ok(frame) = channel_lock.recv() {
                 eprintln!("!!Frame: {:?}", frame.to_string());

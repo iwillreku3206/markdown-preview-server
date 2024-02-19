@@ -1,5 +1,4 @@
 use std::{
-    borrow::Borrow,
     io::{self, BufRead, BufReader},
     process,
     sync::Arc,
@@ -7,7 +6,7 @@ use std::{
 
 use async_trait::async_trait;
 use crossbeam::channel::{unbounded, Receiver, Sender};
-use futures::channel::mpsc;
+
 use tokio::sync::Mutex;
 
 use super::{
@@ -24,12 +23,12 @@ pub struct Stdio {
 
 impl Stdio {
     pub fn new() -> Self {
-        let (send_editor, mut receive_editor) = unbounded::<EditorFrame>();
+        let (send_editor, receive_editor) = unbounded::<EditorFrame>();
         let (send_server, receive_server) = unbounded::<EditorServerFrame>();
 
         tokio::spawn(async move {
             // process incoming server frames here
-            while let Ok(frame) = receive_editor.recv() {
+            while let Ok(_frame) = receive_editor.recv() {
                 // println!("{}", frame.to_string());
             }
         });
@@ -54,13 +53,10 @@ impl EditorConnection for Stdio {
                 Some(frame) => {
                     match frame {
                         EditorServerFrame::Close => break 'loop1,
-                        _ => {
-                            eprintln!("Frame: {:?}", frame.to_string());
-                            let channel = &self.send_server_frame_channel;
-                            let e = channel.lock().await.send(frame).unwrap();
-
-                            eprintln!("Frame sent");
-                        }
+                        _ => match &self.send_server_frame_channel.lock().await.send(frame) {
+                            Ok(_) => (),
+                            Err(_) => break 'loop1,
+                        },
                     };
                 }
                 None => (),

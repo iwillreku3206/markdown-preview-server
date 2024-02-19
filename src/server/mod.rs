@@ -1,8 +1,8 @@
-use std::{borrow::Borrow, collections::HashMap, process, sync::Arc};
+use std::{collections::HashMap, sync::Arc};
 
 use axum::extract::ws::Message;
-use futures_util::{SinkExt, TryFutureExt};
-use markdown_it::MarkdownIt;
+use futures_util::SinkExt;
+
 use tokio::sync::RwLock;
 
 pub mod editor;
@@ -19,10 +19,7 @@ use crate::{
         stdio::Stdio,
         EditorConnection, EditorConnectionType,
     },
-    viewer_connection::{
-        frame::{server::ViewerServerFrame, viewer::ViewerFrame},
-        ViewerMap,
-    },
+    viewer_connection::{frame::viewer::ViewerFrame, ViewerMap},
 };
 
 use self::parser::Parser;

@@ -2,7 +2,7 @@ use std::{fmt::Debug, sync::Arc};
 
 use async_trait::async_trait;
 use crossbeam::channel::{unbounded, Receiver, Sender};
-use futures::channel::mpsc;
+
 use tokio::sync::Mutex;
 
 use super::{

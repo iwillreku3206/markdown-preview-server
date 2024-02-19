@@ -32,7 +32,7 @@ pub struct KatexBlock {
 }
 
 impl NodeValue for KatexBlock {
-    fn render(&self, node: &markdown_it::Node, fmt: &mut dyn markdown_it::Renderer) {
+    fn render(&self, _node: &markdown_it::Node, fmt: &mut dyn markdown_it::Renderer) {
         fmt.text_raw(&format!(
             "<div class=\"katex-block\">{}</div>",
             render_latex(&self.latex)
