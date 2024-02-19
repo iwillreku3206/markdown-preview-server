@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-
 use crate::editor_connection::frame::Frame;
 use clap::Parser;
 use config::Config;
@@ -51,10 +50,8 @@ async fn main() {
             let channel_lock = io_receive.lock().await;
 
             while let Ok(frame) = channel_lock.recv() {
-                eprintln!("!!Frame: {:?}", frame.to_string());
                 server_io_receive_clone.clone().on_frame(frame).await;
             }
-            eprintln!("no more frames");
         }),
         tokio::spawn(async move {
             listen_web(server_web_clone).await;
