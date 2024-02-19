@@ -1,7 +1,8 @@
 use std::sync::Arc;
 
+use crossbeam::channel::{Receiver, Sender};
 use serde::{Deserialize, Serialize};
-use tokio::sync::{mpsc, Mutex};
+use tokio::sync::Mutex;
 
 use async_trait::async_trait;
 
@@ -27,9 +28,9 @@ pub enum EditorConnectionType {
 #[async_trait]
 pub trait EditorConnection: Send + Sync + std::fmt::Debug {
     async fn listen(&self);
-    fn send_channel(&self) -> Arc<Mutex<mpsc::Sender<EditorFrame>>>;
-    fn receive_channel(&self) -> Arc<Mutex<mpsc::Receiver<EditorServerFrame>>>;
-    fn send_server_frame_channel(&self) -> Arc<Mutex<mpsc::Sender<EditorServerFrame>>>;
-    fn receive_editor_frame_channel(&self) -> Option<Arc<Mutex<mpsc::Receiver<EditorFrame>>>>;
+    fn send_channel(&self) -> Arc<Mutex<Sender<EditorFrame>>>;
+    fn receive_channel(&self) -> Arc<Mutex<Receiver<EditorServerFrame>>>;
+    fn send_server_frame_channel(&self) -> Arc<Mutex<Sender<EditorServerFrame>>>;
+    fn receive_editor_frame_channel(&self) -> Option<Arc<Mutex<Receiver<EditorFrame>>>>;
     fn close(&self);
 }

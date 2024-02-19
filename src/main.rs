@@ -1,7 +1,10 @@
 use std::sync::Arc;
 
+use crate::editor_connection::frame::server::EditorServerFrame;
+use crate::editor_connection::frame::Frame;
 use clap::Parser;
 use config::Config;
+use futures_util::{SinkExt, StreamExt};
 use generate_defaults::generate_defaults;
 use server::web::listen_web;
 use server::Server;
@@ -35,8 +38,6 @@ async fn main() {
 
     let server = Arc::new(Server::new(&args, config));
 
-    let io_receive = server.io.receive_channel();
-
     let server_io_clone = server.clone();
     let server_io_receive_clone = server.clone();
     let server_web_clone = server.clone();
@@ -46,9 +47,14 @@ async fn main() {
             server_io_clone.io.listen().await;
         }),
         tokio::spawn(async move {
-            while let Some(frame) = io_receive.lock().await.recv().await {
+            let io_receive = server_io_receive_clone.io.receive_channel();
+            let mut channel_lock = io_receive.lock().await;
+
+            while let Ok(frame) = channel_lock.recv() {
+                eprintln!("!!Frame: {:?}", frame.to_string());
                 server_io_receive_clone.clone().on_frame(frame).await;
             }
+            eprintln!("no more frames");
         }),
         tokio::spawn(async move {
             listen_web(server_web_clone).await;

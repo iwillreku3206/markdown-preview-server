@@ -9,6 +9,8 @@ pub enum EditorFrame {
     Close,
 }
 
+unsafe impl Send for EditorFrame {}
+
 impl Frame for EditorFrame {
     fn to_string(&self) -> String {
         match self {

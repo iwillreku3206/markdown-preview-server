@@ -1,31 +1,35 @@
-use std::{io::BufRead, process, sync::Arc};
+use std::{
+    borrow::Borrow,
+    io::{self, BufRead, BufReader},
+    process,
+    sync::Arc,
+};
 
 use async_trait::async_trait;
-use tokio::sync::{mpsc, Mutex};
-
-use std::io;
-
-use crate::editor_connection::frame::Frame;
+use crossbeam::channel::{unbounded, Receiver, Sender};
+use futures::channel::mpsc;
+use tokio::sync::Mutex;
 
 use super::{
-    frame::server::EditorServerFrame, parse_frame::parse_frame, EditorConnection, EditorFrame,
+    frame::server::EditorServerFrame, frame::Frame, parse_frame::parse_frame, EditorConnection,
+    EditorFrame,
 };
 
 #[derive(Debug)]
 pub struct Stdio {
-    send_channel: Arc<Mutex<mpsc::Sender<EditorFrame>>>,
-    receive_channel: Arc<Mutex<mpsc::Receiver<EditorServerFrame>>>,
-    send_server_frame_channel: Arc<Mutex<mpsc::Sender<EditorServerFrame>>>,
+    send_channel: Arc<Mutex<Sender<EditorFrame>>>,
+    receive_channel: Arc<Mutex<Receiver<EditorServerFrame>>>,
+    send_server_frame_channel: Arc<Mutex<Sender<EditorServerFrame>>>,
 }
 
 impl Stdio {
     pub fn new() -> Self {
-        let (send_editor, mut receive_editor) = mpsc::channel::<EditorFrame>(16);
-        let (send_server, receive_server) = mpsc::channel::<EditorServerFrame>(16);
+        let (send_editor, mut receive_editor) = unbounded::<EditorFrame>();
+        let (send_server, receive_server) = unbounded::<EditorServerFrame>();
 
         tokio::spawn(async move {
             // process incoming server frames here
-            while let Some(frame) = receive_editor.recv().await {
+            while let Ok(frame) = receive_editor.recv() {
                 // println!("{}", frame.to_string());
             }
         });
@@ -42,21 +46,20 @@ impl Stdio {
 impl EditorConnection for Stdio {
     async fn listen(&self) {
         let mut buf = Vec::new();
-        while let Ok(_) = io::stdin().lock().read_until(b'\n', &mut buf) {
-            match parse_frame(&buf) {
+        let mut stdin = io::stdin();
+        let mut reader = BufReader::new(&mut stdin);
+        'loop1: while let Ok(_) = reader.read_until(b'\n', &mut buf) {
+            let frame = parse_frame(&buf);
+            match frame {
                 Some(frame) => {
                     match frame {
-                        EditorServerFrame::Close => break,
+                        EditorServerFrame::Close => break 'loop1,
                         _ => {
-                            // println!("frame: {}", frame.to_string());
-                            let _ = async {
-                                let _ = &self
-                                    .send_server_frame_channel
-                                    .lock()
-                                    .await
-                                    .send(frame)
-                                    .await;
-                            };
+                            eprintln!("Frame: {:?}", frame.to_string());
+                            let channel = &self.send_server_frame_channel;
+                            let e = channel.lock().await.send(frame).unwrap();
+
+                            eprintln!("Frame sent");
                         }
                     };
                 }
@@ -68,19 +71,19 @@ impl EditorConnection for Stdio {
         process::exit(0);
     }
 
-    fn send_channel(&self) -> Arc<Mutex<mpsc::Sender<EditorFrame>>> {
+    fn send_channel(&self) -> Arc<Mutex<Sender<EditorFrame>>> {
         self.send_channel.clone()
     }
 
-    fn receive_channel(&self) -> Arc<Mutex<mpsc::Receiver<EditorServerFrame>>> {
+    fn receive_channel(&self) -> Arc<Mutex<Receiver<EditorServerFrame>>> {
         self.receive_channel.clone()
     }
 
-    fn send_server_frame_channel(&self) -> Arc<Mutex<mpsc::Sender<EditorServerFrame>>> {
+    fn send_server_frame_channel(&self) -> Arc<Mutex<Sender<EditorServerFrame>>> {
         self.send_server_frame_channel.clone()
     }
 
-    fn receive_editor_frame_channel(&self) -> Option<Arc<Mutex<mpsc::Receiver<EditorFrame>>>> {
+    fn receive_editor_frame_channel(&self) -> Option<Arc<Mutex<Receiver<EditorFrame>>>> {
         None
     }
 

@@ -12,9 +12,12 @@ askama_axum = "0.4.0"
 async-trait = "0.1.77"
 axum = { version = "0.7.3", features = ["ws"] }
 axum-macros = "0.4.1"
+backtrace = "0.3.69"
 clap = { version = "4.4.13", features = ["unicode", "derive"] }
+crossbeam = { version = "0.8.4", features = ["crossbeam-channel"] }
 directories = "5.0.1"
 env_logger = "0.10.1"
+futures = "0.3.30"
 futures-util = "0.3.30"
 include_dir = "0.7.3"
 katex = "0.4.6"

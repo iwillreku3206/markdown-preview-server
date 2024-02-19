@@ -42,22 +42,18 @@ async fn handle_socket(mut socket: WebSocket, who: SocketAddr, server: Arc<Serve
         tokio::spawn(async move {
             while let Some(Ok(msg)) = receiver.next().await {
                 if let Some(frame) = parse_frame(msg.into_data().as_slice()) {
-                    if let Err(err) = server_clone
+                    server_clone
                         .io
                         .send_server_frame_channel()
                         .lock()
                         .await
-                        .send(frame)
-                        .await
-                    {
-                        log::error!("Error sending frame to server: {}", err);
-                    };
+                        .send(frame);
                 }
             }
         }),
         tokio::spawn(async move {
             if let Some(channel) = server.io.receive_editor_frame_channel() {
-                while let Ok(frame) = channel.lock().await.try_recv() {
+                while let Ok(frame) = channel.lock().await.recv() {
                     if let Err(e) = sender.send(Message::Binary(frame.to_vec())).await {
                         log::error!("Error sending frame to editor: {}", e);
                         break;

@@ -1,7 +1,9 @@
 use std::{fmt::Debug, sync::Arc};
 
 use async_trait::async_trait;
-use tokio::sync::{mpsc, Mutex};
+use crossbeam::channel::{unbounded, Receiver, Sender};
+use futures::channel::mpsc;
+use tokio::sync::Mutex;
 
 use super::{
     frame::{editor::EditorFrame, server::EditorServerFrame},
@@ -9,10 +11,10 @@ use super::{
 };
 
 pub struct GenericEditorConnection {
-    send_channel: Arc<Mutex<mpsc::Sender<EditorFrame>>>,
-    receive_channel: Arc<Mutex<mpsc::Receiver<EditorServerFrame>>>,
-    send_server_frame_channel: Arc<Mutex<mpsc::Sender<EditorServerFrame>>>,
-    receive_editor_frame_channel: Arc<Mutex<mpsc::Receiver<EditorFrame>>>,
+    send_channel: Arc<Mutex<Sender<EditorFrame>>>,
+    receive_channel: Arc<Mutex<Receiver<EditorServerFrame>>>,
+    send_server_frame_channel: Arc<Mutex<Sender<EditorServerFrame>>>,
+    receive_editor_frame_channel: Arc<Mutex<Receiver<EditorFrame>>>,
     close_callback: Option<Box<dyn Fn() + Send + Sync>>,
 }
 
@@ -38,19 +40,19 @@ impl EditorConnection for GenericEditorConnection {
         }
     }
 
-    fn send_channel(&self) -> Arc<Mutex<mpsc::Sender<EditorFrame>>> {
+    fn send_channel(&self) -> Arc<Mutex<Sender<EditorFrame>>> {
         self.send_channel.clone()
     }
 
-    fn receive_channel(&self) -> Arc<Mutex<mpsc::Receiver<EditorServerFrame>>> {
+    fn receive_channel(&self) -> Arc<Mutex<Receiver<EditorServerFrame>>> {
         self.receive_channel.clone()
     }
 
-    fn send_server_frame_channel(&self) -> Arc<Mutex<mpsc::Sender<EditorServerFrame>>> {
+    fn send_server_frame_channel(&self) -> Arc<Mutex<Sender<EditorServerFrame>>> {
         self.send_server_frame_channel.clone()
     }
 
-    fn receive_editor_frame_channel(&self) -> Option<Arc<Mutex<mpsc::Receiver<EditorFrame>>>> {
+    fn receive_editor_frame_channel(&self) -> Option<Arc<Mutex<Receiver<EditorFrame>>>> {
         Some(self.receive_editor_frame_channel.clone())
     }
 
@@ -61,8 +63,8 @@ impl EditorConnection for GenericEditorConnection {
 
 impl GenericEditorConnection {
     pub fn new(cb: impl Fn() + Send + Sync + 'static) -> Self {
-        let (send_editor, receive_editor) = mpsc::channel::<EditorFrame>(16);
-        let (send_server, receive_server) = mpsc::channel::<EditorServerFrame>(16);
+        let (send_editor, receive_editor) = unbounded::<EditorFrame>();
+        let (send_server, receive_server) = unbounded::<EditorServerFrame>();
 
         GenericEditorConnection {
             send_channel: Arc::new(Mutex::new(send_editor)),

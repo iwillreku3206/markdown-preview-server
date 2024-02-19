@@ -1,7 +1,7 @@
 use std::{borrow::Borrow, collections::HashMap, process, sync::Arc};
 
 use axum::extract::ws::Message;
-use futures_util::SinkExt;
+use futures_util::{SinkExt, TryFutureExt};
 use markdown_it::MarkdownIt;
 use tokio::sync::RwLock;
 
@@ -71,8 +71,7 @@ impl Server {
                     .lock()
                     .await
                     .send(editor_connection::frame::editor::EditorFrame::Pong)
-                    .await
-                    .unwrap();
+                    .unwrap_or_else(|_| {});
             }
             EditorServerFrame::SetText(text) => {
                 let html = self.compiler.parse(&text);

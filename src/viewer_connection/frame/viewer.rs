@@ -11,6 +11,8 @@ pub enum ViewerFrame {
     Close,
 }
 
+unsafe impl Send for ViewerFrame {}
+
 impl Frame for ViewerFrame {
     fn to_string(&self) -> String {
         match self {

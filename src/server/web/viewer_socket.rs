@@ -41,31 +41,18 @@ async fn handle_socket(mut socket: WebSocket, who: SocketAddr, server: Arc<Serve
         }
     });
 
-    let viewer = Viewer {
+    let mut viewer = Viewer {
         addr: who,
         connection: sender,
     };
 
-    server.viewers.write().await.insert(who, Mutex::new(viewer));
+    viewer
+        .connection
+        .send(Message::Binary([0x00, 0x01].to_vec()))
+        .await
+        .unwrap();
 
-    for viewer in server.viewers.read().await.iter() {
-        viewer
-            .1
-            .lock()
-            .await
-            .connection
-            .send(Message::Text("Hello, viewer!".into()))
-            .await
-            .unwrap();
-        viewer
-            .1
-            .lock()
-            .await
-            .connection
-            .send(Message::Binary(b"Hello, viewer!".into()))
-            .await
-            .unwrap();
-    }
+    server.viewers.write().await.insert(who, Mutex::new(viewer));
 
     thread.await.unwrap();
 

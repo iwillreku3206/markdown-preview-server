@@ -7,6 +7,8 @@ pub enum ViewerServerFrame {
     Close,
 }
 
+unsafe impl Send for ViewerServerFrame {}
+
 impl Frame for ViewerServerFrame {
     fn to_string(&self) -> String {
         match self {
