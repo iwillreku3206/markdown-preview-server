@@ -5,7 +5,7 @@ use lazy_static::lazy_static;
 use markdown_it::{parser::block::BlockRule, MarkdownIt, Node, NodeValue};
 
 lazy_static! {
-    pub static ref KATEX_CACHE: Mutex<HashMap<String, String>> = Mutex::new(HashMap::new());
+    pub static ref KATEX_CACHE: Mutex<HashMap<String, (String, i8)>> = Mutex::new(HashMap::new());
     static ref KATEX_OPTS: Opts = Opts::builder()
         .throw_on_error(false)
         .display_mode(true)
@@ -15,13 +15,18 @@ lazy_static! {
 
 pub fn render_latex(latex: &str) -> String {
     let mut cache = KATEX_CACHE.lock().unwrap();
-    if let Some(cached) = cache.get(latex) {
-        return cached.clone();
-    }
+    let render = cache
+        .entry(latex.to_string())
+        .and_modify(|(_, count)| *count += 1)
+        .or_insert_with(|| {
+            (
+                katex::render_with_opts(latex, KATEX_OPTS.as_ref()).unwrap(),
+                2,
+            )
+        });
 
-    let rendered = katex::render_with_opts(latex, KATEX_OPTS.as_ref()).unwrap();
-    cache.insert(latex.to_string(), rendered.clone());
-    rendered
+
+    render.0.clone()
 }
 
 #[derive(Debug)]
@@ -37,6 +42,7 @@ impl NodeValue for KatexBlock {
             "<div class=\"katex-block\">{}</div>",
             render_latex(&self.latex)
         ));
+        eprintln!("{:?}", KATEX_CACHE.lock().unwrap());
     }
 }
 
