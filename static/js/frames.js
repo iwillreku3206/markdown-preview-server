@@ -39,7 +39,7 @@ function pong() { /* STUF */ }
  * @param {ArrayBuffer} buf 
  */
 function setText(buf) {
-  document.getElementById('document').innerText = new TextDecoder().decode(buf.slice(2))
+  document.getElementById('document').innerHTML = new TextDecoder().decode(buf.slice(2))
 }
 
 /**
