@@ -1,0 +1,30 @@
+From previous version, missing features:
+
+* Add iFrame for the content view
+* Add surrounding UI for the main view (settings, document title, etc.)
+* Add a way to switch between different documents from hyperlinks
+* Templates
+* PDF Export
+* Inline LaTeX
+* Table of Contents (Implement as Core Rule)
+* Page Breaks
+* Prevention of race conditions when server is running slow or on slow hardware
+* [Neovim Plugin] Disconnect from server
+
+New Features, to be added:
+* MdPreview command is a toggle
+* Follow scrolling
+* Drag image to editor
+* Drag/Upload image to webview
+* VSCode Extension
+* MDX
+
+Far Future:
+* Desktop App (Tauri?)
+* Mobile App (Flutter?)
+
+Project:
+* Add EditorConfig
+* Add README files
+* Add Linting/ESLint
+* GH Actions
