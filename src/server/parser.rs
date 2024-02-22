@@ -1,6 +1,6 @@
 use markdown_it::MarkdownIt;
 
-use crate::markdown_extensions::katex;
+use crate::markdown_extensions::katex::{self, KATEX_CACHE};
 
 pub struct Parser {
     mdit: MarkdownIt,
@@ -22,13 +22,22 @@ impl Parser {
         markdown_it_footnote::add(mdit_mut);
         markdown_it_deflist::add(mdit_mut);
 
-		katex::add(mdit_mut);
+        katex::add(mdit_mut);
 
         Self { mdit }
     }
 
     pub fn parse(&self, text: &str) -> String {
         let ast = &self.mdit.parse(text);
-        ast.render()
+        let html = ast.render();
+
+        // cleanup caches
+        let mut cache_lock = KATEX_CACHE.lock().unwrap();
+        cache_lock.retain(|_, v| {
+            v.1 -= 1;
+            v.1 > 0
+        });
+
+        html
     }
 }

@@ -17,14 +17,15 @@ pub fn render_latex(latex: &str) -> String {
     let mut cache = KATEX_CACHE.lock().unwrap();
     let render = cache
         .entry(latex.to_string())
-        .and_modify(|(_, count)| *count += 1)
+        .and_modify(|(_, count)| {
+            *count += 1;
+        })
         .or_insert_with(|| {
             (
                 katex::render_with_opts(latex, KATEX_OPTS.as_ref()).unwrap(),
                 2,
             )
         });
-
 
     render.0.clone()
 }
@@ -42,7 +43,6 @@ impl NodeValue for KatexBlock {
             "<div class=\"katex-block\">{}</div>",
             render_latex(&self.latex)
         ));
-        eprintln!("{:?}", KATEX_CACHE.lock().unwrap());
     }
 }
 
