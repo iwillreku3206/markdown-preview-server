@@ -10,6 +10,7 @@ From previous version, missing features:
 * Page Breaks
 * Prevention of race conditions when server is running slow or on slow hardware
 * [Neovim Plugin] Disconnect from server
+* Editor ID
 
 New Features, to be added:
 * MdPreview command is a toggle
