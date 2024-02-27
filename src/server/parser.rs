@@ -1,6 +1,9 @@
 use markdown_it::MarkdownIt;
 
-use crate::markdown_extensions::katex::{self, KATEX_CACHE};
+use crate::markdown_extensions::{
+    katex::{self, KATEX_CACHE},
+    toc,
+};
 
 pub struct Parser {
     mdit: MarkdownIt,
@@ -17,12 +20,13 @@ impl Parser {
         markdown_it::plugins::html::add(mdit_mut);
         markdown_it::plugins::sourcepos::add(mdit_mut);
 
-        markdown_it_gfm::add(mdit_mut);
+        markdown_it_gfm::add_with_anchors(mdit_mut);
         markdown_it_front_matter::add(mdit_mut);
         markdown_it_footnote::add(mdit_mut);
         markdown_it_deflist::add(mdit_mut);
 
         katex::add(mdit_mut);
+        toc::add(mdit_mut);
 
         Self { mdit }
     }
@@ -37,6 +41,8 @@ impl Parser {
             v.1 -= 1;
             v.1 > 0
         });
+
+        //std::fs::write("/tmp/xd", format!("{:#?}", ast));
 
         html
     }
