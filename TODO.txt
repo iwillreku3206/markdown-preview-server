@@ -6,7 +6,6 @@ From previous version, missing features:
 * Templates
 * PDF Export
 * Inline LaTeX
-* Table of Contents (Implement as Core Rule)
 * Page Breaks
 * Prevention of race conditions when server is running slow or on slow hardware
 * [Neovim Plugin] Disconnect from server
