@@ -9,8 +9,8 @@ pub struct Parser {
     mdit: MarkdownIt,
 }
 
-impl Parser {
-    pub fn new() -> Self {
+impl Default for Parser {
+    fn default() -> Self {
         let mut mdit = MarkdownIt::new();
         let mdit_mut = &mut mdit;
         // TODO: insert code to customize plugin list
@@ -29,6 +29,12 @@ impl Parser {
         toc::add(mdit_mut);
 
         Self { mdit }
+    }
+}
+
+impl Parser {
+    pub fn new() -> Self {
+        Self::default()
     }
 
     pub fn parse(&self, text: &str) -> String {
