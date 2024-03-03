@@ -1,0 +1,21 @@
+html[data-theme='dark'] {
+  --background-1: #222222;
+  --background-2: #444444;
+  --background-3: #555555;
+  --text-1: #ffffff;
+  --text-2: #dddddd;
+  --text-3: #bbbbbb;
+  --select-tint: #ffffff33;
+  --not-selected-tint: #ffffff00;
+}
+
+html[data-theme='light'] {
+  --background-1: #ffffff;
+  --background-2: #d0d0f0;
+  --background-3: #c0c0e0;
+  --text-1: #000000;
+  --text-2: #222222;
+  --text-3: #444444;
+  --select-tint: #00000033;
+  --not-selected-tint: #00000000;
+}
