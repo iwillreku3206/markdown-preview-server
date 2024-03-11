@@ -42,21 +42,20 @@ function setText(buf) {
   /** @type {HTMLIFrameElement} */
   const viewer = document.getElementById('viewer')
   viewer.contentWindow.postMessage(buf)
-  // document.getElementById('document').innerHTML = new TextDecoder().decode(buf.slice(2))
 }
 
 /**
  * @param {ArrayBuffer} buf 
  */
 function setDocumentTitle(buf) {
-  document.getElementById('file-name').innerHTML = new TextDecoder().decode(buf.slice(2))
+  document.getElementById('file-name').innerText = new TextDecoder().decode(buf.slice(2))
 }
 
 /**
  * @param {ArrayBuffer} buf 
  */
 function setFilePath(buf) {
-  document.getElementById('file-path').innerHTML = new TextDecoder().decode(buf.slice(2))
+  document.getElementById('file-path').innerText = new TextDecoder().decode(buf.slice(2))
 }
 
 /**

@@ -64,11 +64,11 @@ impl Server {
         let io_send = self.io.send_channel().clone();
         match frame {
             EditorServerFrame::Ping => {
-                let _ = io_send
+                io_send
                     .lock()
                     .await
                     .send(editor_connection::frame::editor::EditorFrame::Pong)
-                    .unwrap_or_else(|_| {});
+                    .unwrap_or(());
             }
             EditorServerFrame::SetText(text) => {
                 let html = self.compiler.parse(&text);
@@ -79,6 +79,32 @@ impl Server {
                         .await
                         .connection
                         .send(Message::Binary(ViewerFrame::SetText(html.clone()).to_vec()))
+                        .await
+                        .unwrap();
+                }
+            }
+            EditorServerFrame::SetFilePath(path) => {
+                for (_who, viewer) in self.viewers.read().await.iter() {
+                    viewer
+                        .lock()
+                        .await
+                        .connection
+                        .send(Message::Binary(
+                            ViewerFrame::SetFilePath(path.clone()).to_vec(),
+                        ))
+                        .await
+                        .unwrap();
+                }
+            }
+            EditorServerFrame::SetDocumentTitle(title) => {
+                for (_who, viewer) in self.viewers.read().await.iter() {
+                    viewer
+                        .lock()
+                        .await
+                        .connection
+                        .send(Message::Binary(
+                            ViewerFrame::SetDocumentTitle(title.clone()).to_vec(),
+                        ))
                         .await
                         .unwrap();
                 }

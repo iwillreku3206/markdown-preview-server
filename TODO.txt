@@ -1,7 +1,6 @@
 From previous version, missing features:
 
 * Add iFrame for the content view
-* Add surrounding UI for the main view (settings, document title, etc.)
 * Add a way to switch between different documents from hyperlinks
 * Templates
 * PDF Export
