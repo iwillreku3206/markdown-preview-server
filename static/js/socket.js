@@ -10,6 +10,8 @@ import { onMessage } from "./frames.js";
 /** @type {ExtendedWindow} */
 const w = window; // for jsdoc
 
+const viewer = document.getElementById('viewer');
+
 w.socket = new WebSocket(`ws://${location.host}/viewer`);
 w.socket.addEventListener('open', () => {
   console.log('Connected to server');
@@ -26,3 +28,7 @@ w.socket.addEventListener('message', async (event) => {
     onMessage(buf);
   }
 })
+
+export function getSocket() {
+  return w.socket
+} 

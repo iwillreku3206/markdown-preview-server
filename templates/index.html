@@ -1,5 +1,10 @@
 {% extends "layout.html" %}
 {% block content %}
-<h1>Index</h1>
-<p>Hello, world!</p>
+  <div class="app flex flex-col w-full h-screen bg-background-1">
+    {%include "./components/appbar.html" %}
+    <main class="w-full h-full">
+      <iframe id="viewer" class="w-full h-full" src="/content" frameborder="0"></iframe>
+    </main>
+  </div>
+  <script type="module" src="/static/js/theme.js"></script>
 {% endblock %}

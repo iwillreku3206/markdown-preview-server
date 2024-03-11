@@ -1,3 +1,5 @@
+const defaultTheme = require('tailwindcss/defaultTheme')
+
 /** @type {import('tailwindcss').Config} */
 const config = {
   content: ["./{templates,src,static}/**/*.{html,js}"],
@@ -12,7 +14,11 @@ const config = {
       'select-tint': 'var(--select-tint)',
       'not-selected-tint': 'var(--not-selected-tint)',
     },
-    extend: {},
+    extend: {
+      fontFamily: {
+        'sans': ['Roboto', ...defaultTheme.fontFamily.sans],
+      },
+    },
   },
   plugins: []
 }

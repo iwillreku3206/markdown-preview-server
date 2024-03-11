@@ -6,7 +6,7 @@ use std::path::Path;
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed=src/styles.css");
-    println!("cargo:rerun-if-changed=templates/**/*");
+    println!("cargo:rerun-if-changed=templates");
 
     let manifest_dir = env::var_os("CARGO_MANIFEST_DIR").unwrap();
 
