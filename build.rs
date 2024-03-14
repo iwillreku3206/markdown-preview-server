@@ -18,7 +18,7 @@ fn main() {
     eprintln!("Building tailwindcss to: {:?}", dest_path);
 
     let run = std::process::Command::new("bunx")
-        .args(&[
+        .args([
             "tailwindcss",
             "-i",
             "src/styles.css",
@@ -31,9 +31,7 @@ fn main() {
         .wait()
         .expect("failed to wait for tailwind compiler");
 
-    if run.success() {
-        return;
-    } else {
+    if !run.success() {
         panic!("failed to build tailwindcss");
     }
 }
